@@ -1,10 +1,7 @@
 <template>
-    <li class="nav-item">
-        <a class="nav-link active" href="/my/tags">Моя лента
-            <span class="badge" v-if="notifications">{{ notifications }}</span>
-        </a>
-    </li>
-
+    <div v-if="notifications !== 0" class="count_activity">
+        <span>{{ notifications }}</span>
+    </div>
 </template>
 
 <script>

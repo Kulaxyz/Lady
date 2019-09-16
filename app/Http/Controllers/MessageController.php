@@ -43,7 +43,8 @@ class MessageController extends Controller
 
     public function chat($id)
     {
-        return view('chat', compact('id'));
+        $user = User::find($id);
+        return view('chat', compact('id', 'user'));
     }
 
     public function privateMessages(User $user)

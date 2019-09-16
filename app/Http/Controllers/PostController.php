@@ -9,12 +9,16 @@ use App\Tag;
 use App\User;
 use App\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use phpDocumentor\Reflection\Types\Array_;
+use PhpParser\Node\Expr\Cast\Object_;
 use vendor\project\StatusTest;
 use Carbon\Carbon;
 use App\Events\NewPost;
+use function Sodium\add;
 
 class PostController extends Controller
 {
@@ -26,11 +30,18 @@ class PostController extends Controller
      * @param string $time
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        Carbon::setLocale('ru');
+        define('LIMIT_OF_POSTS', 10);
+    }
+
     public function all(Request $request, $filter, $time = 'week')
     {
         switch ($filter) {
             case 'live':
                 $order_by = 'created_at';
+                $time = 'Century';
                 break;
             case 'popular':
                 $order_by = 'likers_count';
@@ -44,31 +55,37 @@ class PostController extends Controller
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $sub = 'sub' . $time;
         $posts = Post::with('images', 'tags', 'options', 'user')
-            ->withCount('likers', 'comments')
+            ->withCount('likers', 'comments', 'favoriters')
             ->whereNotIn('id', $ids)
             ->where('created_at', '>', Carbon::now()->$sub())
             ->orderBy($order_by, 'DESC')
-            ->limit(6)
+            ->limit(LIMIT_OF_POSTS)
             ->get();
         if (!$request->ajax()) {
-            return view('post.index', ['posts' => $posts, 'filter' => $filter, 'time' => $time]);
+            return view('post.index', compact('posts', 'filter', 'time'));
         } else {
-            $this->loadMore($posts);
+            return $posts;
         }
     }
 
-    public function favorites(Request $request)
+    public function favorites(Request $request, $filter = null)
     {
+        $order = 'created_at';
+        if ($filter) {
+            $order = $filter . '.' . $order;
+        }
+
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $posts = Auth::user()->favorites(Post::class)->with('images', 'tags', 'options', 'user')
             ->whereNotIn('id', $ids)
-            ->orderBy('created_at', 'DESC')
-            ->limit(6)
+            ->withCount('likers', 'comments', 'favoriters')
+            ->orderBy($order, 'DESC')
+            ->limit(LIMIT_OF_POSTS)
             ->get();
         if (!$request->ajax()) {
             return view('post.favorites', ['posts' => $posts]);
         } else {
-            $this->loadMore($posts);
+            return $posts;
         }
     }
 
@@ -95,8 +112,8 @@ class PostController extends Controller
         $post = new Post();
         $post->title = $request->post('title');
         $post->description = $request->post('description');
-        $post->type = $request->post('type');
-        $post->is_anonimous = $request->has('is_anonimous') ? true : false;
+        $post->type = $request->post('options')[0] ? 'vote' : 'post';
+        $post->is_anonimous = $request->has('anon') ? true : false;
         $post->user_id = Auth::user()->id;
         $post->user()->associate(Auth::user());
 
@@ -166,7 +183,9 @@ class PostController extends Controller
      */
     public function show(int $id)
     {
-        $post = Post::with('images', 'tags', 'options', 'user')->find($id);
+        $post = Post::with('images', 'tags', 'options', 'user', 'votes')
+            ->withCount('likers', 'comments', 'favoriters')
+            ->find($id);
         return view('post.show', [
             'post' => $post, 'tags' => $post->tags,
             'images' => $post->images, 'user' => $post->user,
@@ -207,6 +226,25 @@ class PostController extends Controller
         return redirect()->route('list', 'live');
     }
 
+
+
+    public function getOptions($post_id)
+    {
+        $results = [];
+        $post = Post::with('options')->find($post_id);
+        $options = $post->options;
+        foreach ($options as $option) {
+            $result = [];
+            $result["name"] = $option->name;
+            $result["id"] = $option->id;
+            $result["votesCount"] = $option->countVotes();
+            $result["percent"] = (int)$option->percent();
+            array_push($results, $result);
+        }
+
+        return json_encode($results);
+    }
+
     /**
      * Make a Vote
      *
@@ -214,6 +252,8 @@ class PostController extends Controller
      * @param Request $request
      * @return $this|\Illuminate\Http\RedirectResponse
      */
+
+
     public function vote(Request $request)
     {
 //        $post = Post::with('options')->find($request->post('post_id'));
@@ -222,7 +262,6 @@ class PostController extends Controller
         if (!$request->ajax()) {
             abort(403);
         }
-
         $post = Post::with('options')->find($request->post('post_id'));
         $options = $post->options()->get();
         try {
@@ -233,17 +272,17 @@ class PostController extends Controller
             $option->updateTotalVotes();
 
             if ($vote) {
-                $response = "";
+                $results = [];
+
                 foreach ($options as $option) {
-                    $response .= "<div class=\"option\">
-                        <strong>$option->name</strong><span class=\"pull-right\">" . (int)$option->percent() . "% (" . $option->countVotes() . ")</span>
-                        <div class=\"progress progress-danger active\">
-                            <div class=\"progress-bar\" style='width:" . $option->percent() . "%'></div>
-                        </div>
-                    </div>";
+                    $result["name"] = $option->name;
+                    $result["id"] = $option->id;
+                    $result["votesCount"] = $option->countVotes();
+                    $result["percent"] = (int)$option->percent();
+                    array_push($results, $result);
                 }
 
-                echo $response;
+                return json_encode($results);
             }
         } catch (\Exception $e) {
             echo $e->getMessage();
@@ -301,46 +340,5 @@ class PostController extends Controller
         }
         return true;
     }
-
-    public static function loadMore($posts)
-    {
-        $output = '';
-        foreach ($posts as $post) :
-            $output .=
-                "<div class=\"col-lg-6 col-6 d-flex justify-content-center\">
-                        <div class=\"card\" data-id=\"$post->id\">
-                            <div class=\"card-body\">";
-//                                foreach($post->tags as $tag):
-//
-//                                   $output.= "<a class=\"btn btn-outline-success\" href=\"\">" . $tag->name . "</a>";
-//                                endforeach;
-            $output .= "
-                            </div>
-                            <div class=\"card-body\">
-                                <h5 class=\"card-title\">" . $post->title . "</h5>
-                                <p class=\"card-text\">" . $post->description . "</p>
-                                <a href=\"" . route('show', $post->id) . " \" class=\"btn btn-primary\">Посмотреть</a>
-
-                            </div>";
-
-            if ($post->images->isNotEmpty()) :
-                $output .= "<img class=\"card-img-top\"
-                                     src=\" " . asset('storage/images/posts') . '/' . $post->images->first()->path . "
-                                         \" style=\"width: 200px\" alt=\"\">
-                                     ";
-            endif;
-            $output .= "<div>" .
-            $post->created_at->diffForHumans()
-                    . "
-        </div>
-                        </div>
-                    </div>
-                    ";
-        endforeach;
-        echo $output;
-    }
-
-
-
 
 }

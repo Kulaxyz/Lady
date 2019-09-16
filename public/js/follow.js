@@ -8,12 +8,17 @@ function ajaxAction(obj, type) {
         data: type + '_id=' + obj.data('id'),
         success: function (data) {
             obj.attr('class', data);
-            let text = $(obj).children()[0];
+            let child = $(obj).children()[0];
+            let text = $(child).children()[0];
             let newText = data == 'follow' ? 'Подписаться' : 'Отписаться';
-            let newClass = data == 'follow' ? 'btn btn-primary' : 'btn btn-light';
+            let newClass = data == 'follow' ? 'btn_subscribe' : 'btn_unscribe';
+            if (type == 'users')
+            {
+                newClass = data == 'follow' ? 'subscribe' : 'unscribe';
+            }
             $(text).text(newText);
-            $(text).removeClass();
-            $(text).addClass(newClass);
+            $(child).removeClass();
+            $(child).addClass(newClass).addClass('profile_user_btn');
         },
         error: function (data) {
             alert(data);

@@ -1,127 +1,265 @@
 @extends('layouts/app')
 
 @section('content')
-    <div class="container">
-        <div class="wrapper">
-            <div class="float-left">
-                <div class="user col-9">
-                <span>
-                    Автор:
-                </span>
-                    @if(!$post->is_anonimous)
-                    <a href="{{route('profile', $user->id)}}">
-                        <img src="{{ asset('storage/images/avatars') . '/' . $user->avatar }}"
-                             style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px" alt="">
-                        <span>{{ $user->name }} </span>
-                    </a>
-                    @else
-                        <img src="{{ asset('storage/images/avatars') . '/default.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px"  alt="">
-                        <span>{{ 'Аноним' }}</span>
-                    @endif
-                </div>
-            </div>
-            <hr>
+    <section class="sec-publication-detail">
+        <div class="wrap-publication-detail">
+            <div class="wrap-publication-detail-content">
+                <div class="publication-detail-content-main">
+                    <div class="detail-content-main-info">
+                        <div class="detail-content-main-info-top">
+                            <div class="detail-content-main-info-star">
+                                <img src="/img/star.png" alt="">
 
-            @if(Auth::user())
-                <span id="likes" @if(Auth::user()->hasLiked($post)) class="dislike" @else class="like" @endif>
-                        <i class="fas fa-heart"></i>
-                </span>
-                <div class="favorite icon">
-                    <span id="favorites" @if(Auth::user()->hasFavorited($post)) class="unfavorite"
-                          @else class="favorite" @endif >
-                        <i class="fas fa-bookmark"></i>
-                    </span>
-                    <label for="favorites"> Добавить в избранное</label>
-                </div>
-                <hr>
-            @endif
-            @can('delete-post', $post)
-                <form action="{{ route('destroy', $post->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                </form>
-            @endcan
-            @foreach($tags as $tag)
-                <span class="btn">
-                        <a href="{{ route('tag', $tag->id) }}">
-                            {{ $tag->name }}
-                        </a>
-                    </span>
-            @endforeach
-            <div class="title">
-                <h1 class="text-lg-center">
-                    {{ $post->title }}
-                </h1>
-            </div>
-
-            <div class="text-body">
-                <article>
-                    {{ $post->description }}
-                </article>
-            </div>
-
-        </div>
-    </div>
-    <div class="container">
-        <div class="row">
-            @if($post->options->isNotEmpty())
-                    <div class="opt col-md-3" @if(Auth::check() && Auth::user()->hasVoted($post->id)) style="display: none" @endif>
-                        <div class="panel">
-                            <!-- <div class="panel-heading">
-                                 <h3 class="panel-title">
-                                     <span class="glyphicon glyphicon-arrow-right"></span>How is My Site? <a href="http://www.jquery2dotnet.com" target="_blank"><span
-                                         class="glyphicon glyphicon-new-window"></span></a>
-                                 </h3>
-                             </div> -->
-                            <div class="panel-body">
-                                <ul class="list-group">
-                                    @foreach($options as $option)
-                                        <li class="list-group-item">
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio" id="radio-option" value="{{ $option->id }}"
-                                                           name="optionsRadios">
-                                                    {{ $option->name }}
-                                                </label>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
                             </div>
-                            <!--div class="panel-footer">
-                                <button type="button" class="btn btn-primary btn-sm">
-                                    Vote</button>
-                                <a href="#">View Result</a></div> -->
+
+                            <div class="detail-content-main-info-time">
+                                <span>{{$post->created_at->diffForHumans()}}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="res col-md-5" @if(!Auth::check() || !Auth::user()->hasVoted($post->id)) style="display:none;" @endif>
-                        <div id="results" class="mt-3 mb-5">
-                            @foreach($options as $option)
-                                <div class="option">
-                                    <strong>{{ $option->name }}</strong><span class="pull-right">{{ (int) $option->percent()}}% ({{ $option->countVotes() }})</span>
-                                    <div class="progress progress-danger active">
-                                        <div class="progress-bar" style="width: {{$option->percent()}}%"></div>
+                        <div style="display: flex">
+                        <h4 style="margin-top: 20px; width: fit-content; margin-right: 15px">Темы:</h4>
+                        @foreach($post->tags as $tag)
+
+                            <div class="single-tag">
+                                <a href="/tags/single/{{$tag->id}}"><span>{{ $tag->name }}</span></a>
+                            </div>
+                        @endforeach
+                        </div>
+                        <div class="detail-content-main-info-text">
+                            <h3>{{ $post->title }}</h3>
+                            <p>{{ $post->description }}</p>
+                        </div>
+                        @if(($images->isNotEmpty()))
+                            @if(count($images) > 1)
+                                <div class="detail-content-main-info-slider">
+                                    <div class="images">
+                                    @foreach($images as $image)
+                                        <div class="images-el"><img src="/storage/images/posts/{{$image->path}}" alt=""></div>
+                                    @endforeach
+                                    </div>
+
+                                    <div class="imagesnew_dotted" style="transform: none !important;">
+                                        @foreach($images as $image)
+                                            <div class="imagesnew_dotted-el">
+                                                <img src="/storage/images/posts/{{$image->path}}" alt="">
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            @endforeach
+                                @else
 
+                                <div style="display: flex; justify-content: center">
+                                    <img src="/storage/images/posts/{{$images[0]->path}}" alt="">
+                                </div>
+                            @endif
+                        @endif
+
+                        @if($post->type == 'vote')
+                        <!-- class voted - состояние посел -->
+                            <votes :voted="@if(Auth::user()->hasVoted($post->id)) 'voted' @else  '' @endif " :post="{{$post->id}}"></votes>
+                        @endif
+                    </div>
+                    <div class="detail-content-main-activity">
+                        @if($post->is_anonimous)
+                        <div class="user-tape">
+                            <img class="user-tape-img" src="/storage/images/avatars/default.jpg">
+                            <span><a>Аноним</a></span>
+                        </div>
+                        @else
+                        <div class="user-tape" >
+                            <img class="user-tape-img" src="/storage/images/avatars/{{ $post->user->avatar}}">
+                            <span><a href='/user/{{$post->user->id}}'>{{$post->user->name}}</a></span>
+                        </div>
+                        @endif
+                        <div class="content-main-activities">
+                            <div class="activity-el">
+                                <div class="activity-el_img">
+                                    <img src="/img/tape/like.png" alt="">
+                                </div>
+                                <div class="activity-el_count">
+                                    <span>{{$post->likers_count}}</span>
+                                </div>
+                            </div>
+                            <div class="activity-el">
+                                <div class="activity-el_img">
+                                    <img src="/img/tape/bookmark.png" alt="">
+                                </div>
+                                <div class="activity-el_count">
+                                    <span>{{$post->favoriters_count}}</span>
+                                </div>
+                            </div>
+                            <div class="activity-el">
+                                <div class="activity-el_img">
+                                    <img src="/img/tape/comment.png" alt="">
+                                </div>
+                                <div class="activity-el_count">
+                                    <span>{{$post->comments_count}}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-            @endif
-                @if(!is_null($images))
-                    <div class="card-img">
-                        @foreach($images as $img)
-                            <span class="img-fluid">
-                        <img src="{{ asset('storage/images/posts') . '/' . $img->path }}" style="width: 200px" alt="">
-                    </span>
-                        @endforeach
-                    </div>
-                @endif
+{{--                        <div class="detail-content-comments-else">--}}
+{{--                            <div class="btn-green tapes-else">--}}
+{{--                                <a href="#">--}}
+{{--                                    Смотреть еще--}}
+{{--                                    <img src="/img/tape/else_icon.png" alt="">--}}
+{{--                                </a>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                        <div class="detail-content-comments">--}}
+{{--                            <ul class="content-comments">--}}
+{{--                                <li class="comment">--}}
+{{--                                    <div class="wrap-comment">--}}
+{{--                                        <div class="wrap-comment-top">--}}
+{{--                                            <div class="comment-top-user">--}}
+{{--                                                <div class="user_activity_img"--}}
+{{--                                                     style="background-image: url(/img/tape/user.png);">--}}
+{{--                                                </div>--}}
+{{--                                                <div class="user_activity_name">--}}
+{{--                                                    <span>Phoenix</span>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                            <div class="comment-top-time">--}}
+{{--                                                <span>вчера 11:48</span>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="wrap-comment-body">--}}
+{{--                                            <p>Зачем здоровье? Мы все умрем, вот зачем люди терпят болезненные операции, все равно умрут</p>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="comment-reply">--}}
+{{--                                            <div class="btn-green">--}}
+{{--                                                <a href="#">--}}
+{{--                                                    Ответить--}}
+{{--                                                </a>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <ul class="comments_reply">--}}
+{{--                                        <li class="comment_reply">--}}
+{{--                                            <div class="wrap-comment">--}}
+{{--                                                <div class="wrap-comment-top">--}}
+{{--                                                    <div class="comment-top-user">--}}
+{{--                                                        <div class="user_activity_img"--}}
+{{--                                                             style="background-image: url(/img/tape/user.png);">--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="user_activity_name">--}}
+{{--                                                            <span>Эльза</span>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="comment-top-time">--}}
+{{--                                                        <span>сегодня 15:24</span>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="wrap-comment-body">--}}
+{{--                                                    <p>Не стягивайте волосы тугими «конскими хвостами», косами, лентами или гребнями на долгое время, потому что это может повредить волосы и даже вызвать алопецию, то есть облысение. уход за волосами</p>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="comment-reply">--}}
+{{--                                                    <div class="comment-reply-input">--}}
+{{--                                                        <input class="inp_comment" type="text" placeholder="Напишите сообщение...">--}}
+{{--                                                        <div class="comment-reply-input-media">--}}
+{{--                                                            <div class="comment-reply-input-media_el">--}}
+{{--                                                                <div class="load_media">--}}
+{{--                                                                    <label class="unselectable">--}}
+{{--                                                                        <input type="file">--}}
+{{--                                                                        <img src="/img/camera.png" alt="">--}}
+{{--                                                                    </label>--}}
+{{--                                                                </div>--}}
+{{--                                                            </div>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="btn-green">--}}
+{{--                                                        <a href="#">--}}
+{{--                                                            Ответить--}}
+{{--                                                        </a>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="comment_reply">--}}
+{{--                                            <div class="wrap-comment">--}}
+{{--                                                <div class="wrap-comment-top">--}}
+{{--                                                    <div class="comment-top-user">--}}
+{{--                                                        <div class="user_activity_img"--}}
+{{--                                                             style="background-image: url(/img/tape/user.png);">--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="user_activity_name">--}}
+{{--                                                            <span>Эльза</span>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="comment-top-time">--}}
+{{--                                                        <span>сегодня 16:30</span>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="wrap-comment-body">--}}
+{{--                                                    <p>Не стягивайте волосы тугими «конскими хвостами», косами, лентами или гребнями на долгое время, потому что это..</p>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="comment-reply">--}}
+{{--                                                    <div class="btn-green">--}}
+{{--                                                        <a href="#">--}}
+{{--                                                            Ответить--}}
+{{--                                                        </a>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </li>--}}
+{{--                                    </ul>--}}
+{{--                                </li>--}}
+{{--                                <li class="comment">--}}
+{{--                                    <div class="wrap-comment">--}}
+{{--                                        <div class="wrap-comment-top">--}}
+{{--                                            <div class="comment-top-user">--}}
+{{--                                                <div class="user_activity_img"--}}
+{{--                                                     style="background-image: url(/img/tape/user.png);">--}}
+{{--                                                </div>--}}
+{{--                                                <div class="user_activity_name">--}}
+{{--                                                    <span>Phoenix</span>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                            <div class="comment-top-time">--}}
+{{--                                                <span>вчера 11:48</span>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="wrap-comment-body">--}}
+{{--                                            <p>Зачем здоровье? Мы все умрем, вот зачем люди терпят болезненные операции.</p>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="comment-reply">--}}
+{{--                                            <div class="btn-green">--}}
+{{--                                                <a href="#">--}}
+{{--                                                    Ответить--}}
+{{--                                                </a>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </li>--}}
+{{--                            </ul>--}}
+{{--                        </div>--}}
+{{--                        <div class="detail-content-comments-add">--}}
+{{--                            <div class="comment-reply-input">--}}
+{{--                                <input class="inp_comment" type="text" placeholder="Напишите сообщение..." data-emojiable="true">--}}
+{{--                                <div class="comment-reply-input-media">--}}
+{{--                                    <div class="comment-reply-input-media_el">--}}
+{{--                                        <div class="load_media">--}}
+{{--                                            <label class="unselectable">--}}
+{{--                                                <input type="file">--}}
+{{--                                                <img src="/img/camera.png" alt="">--}}
+{{--                                            </label>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="btn-green">--}}
+{{--                                <a href="#">Отправить</a>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+                    @comments(['model' => $post])
+
+                </div>
+                </div>
+            </div>
         </div>
-        <hr>
-        <h1>Комментарии</h1>
-        @comments(['model' => $post])
+    </section>
+
+
     </div>
 @endsection
 @section('scripts')
@@ -153,28 +291,6 @@
             favorites.click(function () {
                 ajaxAction(favorites);
             });
-
-
-            $('input:radio[name="optionsRadios"]').change(
-                function () {
-                    @if(!Auth::user())  window.location.replace("{{route('login')}}"); @endif
-                    if ($(this).is(':checked')) {
-                        $.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            type: "POST",
-                            url: "/posts/vote",
-                            data: 'option_id=' + this.value + '&post_id=' + {{ $post->id }},
-                            success: function (data) {
-                                $('#results').html(data);
-                                $('.res').show();
-                                $('.opt').hide();
-                            }
-                        });
-
-                    }
-                });
         });
     </script>
 @endsection

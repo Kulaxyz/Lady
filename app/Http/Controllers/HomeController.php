@@ -26,6 +26,8 @@ class HomeController extends Controller
      */
     public function __construct()
     {
+        define('LIMIT_OF_POSTS', 10);
+
     }
 
     /**
@@ -35,23 +37,26 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        Auth::user()->unreadNotifications()->where('type', '=', NewPost::class)->get()->markAsRead();
+        $nots = Auth::user()->unreadNotifications()->where('type', '=', NewPost::class)->get();
+        if (!$nots->isEmpty()) {
+            Auth::user()->unreadNotifications()->where('type', '=', NewPost::class)->get()->markAsRead();
+        }
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $tags = Auth::user()->followings('App\Tag')->pluck('id')->toArray();
         $posts = Post::whereHas('tags', function ($q) use ($tags) {
             return $q->whereIn('tags.id', $tags);
         })
-            ->withCount('likers')
+            ->withCount('likers', 'comments', 'favoriters')
             ->whereNotIn('posts.id', $ids)
             ->with('images', 'user')
             ->orderBy('created_at', 'DESC')
-            ->limit(6)
+            ->limit(LIMIT_OF_POSTS)
             ->get();
         if (!$request->ajax()) {
-            return view('home', ['posts' => $posts, 'h' => 'По тегам']);
+            return view('home', compact('posts'));
 
         } else {
-            PostController::loadMore($posts);
+            return $posts;
         }
 
     }
@@ -63,17 +68,17 @@ class HomeController extends Controller
         $users = Auth::user()->followings()->get('id')->toArray();
         $posts = Post::whereNotIn('posts.id', $ids)
             ->whereIn('user_id', $users)
-            ->withCount('likers')
+            ->withCount('likers', 'comments', 'favoriters')
             ->with('images', 'user')
             ->orderBy('created_at', 'DESC')
-            ->limit(6)
+            ->limit(LIMIT_OF_POSTS)
             ->get();
 
         if (!$request->ajax()) {
-            return view('home', ['posts' => $posts, 'h' => 'По пользователям']);
+            return view('home', compact('posts'));
 
         } else {
-            PostController::loadMore($posts);
+            return $posts;
         }
     }
 
@@ -81,17 +86,17 @@ class HomeController extends Controller
     {
         $query = $request->query('query');
         $tags = Tag::where('name', 'like', '%' . $query . '%')
+            ->limit(20)
             ->get();
 
         $posts = Post::where('title', 'like', '%' . $query . '%')
-            ->orWhere('description', 'like', '%' . $query . '%')
+            ->limit(10)
             ->get();
 
         //broadcast search results with Pusher channels
 //        event(new SearchEvent($tags, $posts));
 
-        echo json_encode($tags);
-        echo json_encode($posts);
+        return [$tags, $posts];
     }
 
 }

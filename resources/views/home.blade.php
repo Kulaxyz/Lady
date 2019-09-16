@@ -1,20 +1,15 @@
 @extends('layouts/app')
 @section('content')
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <a href="{{ route('my-tags') }}" class="btn btn-secondary">По тегам</a>
-        <a href="{{ route('my-users') }}" class="btn btn-secondary">По подпискам</a>
-    </div>
+    <section class="sec-tape">
+        <h2>Моя лента</h2>
+        <div class="tape-tabs">
+            <ul>
+                <li class="active"><a href="{{ route('my-tags') }}">По темам</a></li>
+                <li><a href="{{ route('my-users') }}">По подпискам</a></li>
+            </ul>
+        </div>
 
-    <h1>{{$h}}</h1>
-    <div id="posts" class="container-fluid">
-        @foreach($posts as $post)
-            @include('post.part')
-        @endforeach
-    </div>
-
-    <div id="load">
-        <button id="load-more" class="btn btn-primary form-control"><i class="fas fa-arrow-down"></i>Смотреть ещё</button>
-    </div>
+        <posts :posts="{{ $posts }}"></posts>
 @endsection
 @section('scripts')
     <script type="text/javascript" src="{{asset('js/load-more.js')}}"></script>

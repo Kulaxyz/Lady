@@ -1,67 +1,87 @@
 @extends('layouts.app')
 @section('content')
-    @php $owner = $user->id == Auth::user()->id @endphp
-    <div>
-        <img class="user-avatar" src="{{ asset('storage/images/avatars') . '/' . $user->avatar }}"alt="">
-    </div>
-    <h2>{{$user->name}}</h2>
-    @if($owner)
-        <form style=" padding-left: 40px; padding-top: 40px" action="/avatar" method="POST" enctype="multipart/form-data">
-            {{ csrf_field() }}
-            <input name="avatar" id="file" style="display: none"  class="form-control" type="file">
-            <label for="file">Choose avatar</label>
-            <input type="submit" class="btn btn-primary">
-        </form>
-        @else
-        @auth
+    @php $owner = $user->id == Auth::id() @endphp
+    <section class="sec-profile">
+        <div class="wrap-profile">
+            @if($owner)
+            <h2>Мой профиль</h2>
+            @endif
+            <div class="profile_user">
+                <div class="profile_user_img" style="background-image: url(/storage/images/avatars/{{ $user->avatar}});"></div>
+                <div class="profile_user_name">
+                    <p>{{$user->name}}</p>
+                </div>
+                @if(!$owner)
+                    <span onclick="ajaxAction($(this), 'users')" class="follow"
+                         @if(Auth::user()->isFollowing($user)) hidden @endif
+                         data-id="{{ $user->id }}">
 
-            <span class="follow" @if(Auth::user()->isFollowing($user)) hidden @endif data-id="{{ $user->id }}">
-                    <span class="btn btn-primary">Подписаться</span>
-                </span>
+                        <div class="profile_user_btn subscribe">
+                            <a class="user-name-follow">Подписаться</a>
+                        </div>
+                    </span>
+                    <span onclick="ajaxAction($(this), 'users')" class="unfollow"
+                         @if(!(Auth::user()->isFollowing($user))) hidden @endif
+                         data-id="{{ $user->id }}">
 
-            <span class="unfollow" @if(!Auth::user()->isFollowing($user)) hidden @endif data-id="{{ $user->id }}">
-                    <span class="btn btn-light">Отписаться</span>
-                </span>
-        @endauth
+                    <div class="profile_user_btn unscribe btn-green">
+                        <a class="user-name-follow">Отписаться</a>
+                    </div>
+                    </span>
+                    <div class="btn-green write-message">
+                        <a href="#">Написать сообщение</a>
+                    </div>
+                @endif
+            </div>
 
-        @guest
-            <a href="{{ route('login') }}" class="btn btn-primary">Подписаться</a>
-        @endguest
-    @endif
-    <div class="col-md-3">
-        <div class="card border-dark mb-3 col-3" style="max-width: 18rem;">
-            <div class="card-header">Публикации</div>
-            <div class="card-body text-dark">
-                <p class="card-text">{{$user->posts_count}}</p>
+                <div class="profile_tabs">
+                <ul>
+                    <li class="{{ (request()->is("*user/$user->id")) ? 'active' : '' }}">
+                        <a href="{{ route('profile', $user->id) }}">
+                            <h5>Публикации</h5>
+                            <span>{{$user->posts_count}}</span>
+                        </a>
+                    </li>
+                    <li class="{{ (request()->is("*user/*/follows*")) ? 'active' : '' }}">
+                        <a href="{{route('profile-follows', $user->id)}}">
+                            <h5>Подписки</h5>
+                            <span>{{$user->followings_count}}</span>
+                        </a>
+                    </li>
+                    <li class="{{ (request()->is("*user/*/followers")) ? 'active' : '' }}">
+                        <a href="{{ route('profile-followers', $user->id) }}">
+                            <h5>Подписчики</h5>
+                            <span>{{$user->followers_count}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="profile_settigns">
+                <div class="profile_settigns-el">
+                    <a href="/pages/settings.html">
+                        <div class="profile_settigns-el-content">
+                            <div class="profile_settigns-el-icon">
+                                <img src="/img/settigns.png" alt="">
+                            </div>
+                            <span>Настройки</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="profile_settigns-el">
+                    <div class="profile_settigns-el-content">
+                        <div class="profile_settigns-el-icon">
+                            <img src="/img/exit.png" alt="">
+                        </div>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap-profile-content">
+                @yield('inner')
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-dark mb-3 col-3" style="max-width: 18rem;">
-            <div class="card-header">Закладки</div>
-            <div class="card-body text-dark">
-                <p class="card-text">{{$favorites}}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-dark mb-3 col-3" style="max-width: 18rem;">
-            <div class="card-header">Подписки</div>
-            <div class="card-body text-dark">
-                <p class="card-text">{{ $followings }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-dark mb-3 col-3" style="max-width: 18rem;">
-            <div class="card-header">Подписчики</div>
-            <div class="card-body text-dark">
-                <p class="card-text">{{ $followers }}</p>
-            </div>
-        </div>
-    </div>
+    </section>
 
-    @yield('inner')
 
 @endsection
 @section('scripts')

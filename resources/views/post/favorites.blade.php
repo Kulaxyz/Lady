@@ -1,14 +1,18 @@
 @extends('layouts/app')
 @section('content')
-    <div id="posts" class="container-fluid">
-        @foreach($posts as $post)
-            @include('post.part')
-        @endforeach
+    <h2>Закладки</h2>
+    <div class="tape-tabs">
+        <ul>
+            <li class="{{ (request()->is('*favorites/followables')) ? 'active' : '' }}">
+                <a href="{{route('favorites') . '/followables'}}">По дате добавления</a>
+            </li>
+            <li class="{{ (request()->is('*favorites')) ? 'active' : '' }}">
+                <a href="{{route('favorites')}}">По дате публикации</a>
+            </li>
+        </ul>
     </div>
 
-    <div id="load">
-        <button id="load-more" class="btn btn-primary form-control"><i class="fas fa-arrow-down"></i>Смотреть ещё</button>
-    </div>
+    <posts :posts="{{$posts}}"></posts>
 @endsection
 @section('scripts')
     <script type="text/javascript" src="{{asset('js/load-more.js')}}"></script>

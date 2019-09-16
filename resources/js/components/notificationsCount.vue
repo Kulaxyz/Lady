@@ -1,6 +1,6 @@
 <template>
-    <div class="badge" v-if="notifications">
-        {{ notifications }}
+    <div class="count_activity" v-if="notifications !== 0">
+        <span>notifications</span>
     </div>
 </template>
 
@@ -26,7 +26,7 @@
 
         created() {
             this.countNotifications();
-            Echo.private('users.'+this.user.id)
+            Echo.private('users.'+ this.user.id)
                 .listen('CommentCreated',(e)=>{
                     console.log('new comment')
                     this.countNotifications();

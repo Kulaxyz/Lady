@@ -11,10 +11,11 @@
 |
 */
 
-Route::get('ms', 'HomeController@ms');
+Route::get('options/{post_id}', 'PostController@getOptions');
 
 Route::get('/search', 'HomeController@search');
 Route::redirect('/', '/posts/all/live');
+
 
 Route::get(
     '/socialite/{provider}',
@@ -39,15 +40,15 @@ Route::get('/dialogs', 'MessageController@index')->name('dialogs');
 
 
 
-Route::get('my/tags', 'HomeController@index')->name('my-tags');
-Route::get('my/users', 'HomeController@byUser')->name('my-users');
+Route::get('my/tags', 'HomeController@index')->name('my-tags')->middleware('auth');
+Route::get('my/users', 'HomeController@byUser')->name('my-users')->middleware('auth');
 
 Route::post('my/tags', 'HomeController@index');
 Route::post('my/users', 'HomeController@byUser');
 
 Auth::routes();
 
-Route::get('favorites', 'PostController@favorites')->name('favorites')->middleware('auth');
+Route::get('favorites/{filter?}', 'PostController@favorites')->name('favorites')->middleware('auth');
 Route::post('favorites', 'PostController@favorites')->name('favorites')->middleware('auth');
 
 Route::group(['prefix' => 'posts'], function() {
@@ -64,15 +65,16 @@ Route::group(['prefix' => 'posts'], function() {
     Route::post('unfavorite', 'PostController@unfavorite')->name('unfavorite')->middleware('auth');
     Route::delete('destroy/{post_id}', 'PostController@destroy')->name('destroy')->middleware('auth');
 
-
 });
 
 //Route::get('/', 'PostController@index')->name('home');
-Route::get('/user/{id}', 'UserController@profile')->name('profile')->middleware('auth');
-Route::get('/user/{id}/posts', 'UserController@posts')->name('profile-posts')->middleware('auth');
-Route::post('/user/{id}/posts', 'UserController@posts')->name('profile-posts')->middleware('auth');
+Route::get('/user/{id}', 'UserController@posts')->name('profile')->middleware('auth');
+Route::post('/user/{id}', 'UserController@posts')->name('profile')->middleware('auth');
 Route::get('/user/{id}/follows', 'UserController@follows')->name('profile-follows')->middleware('auth');
-Route::get('/user/{id}/followings', 'UserController@followings')->name('profile-followings')->middleware('auth');
+Route::post('/user/{id}/follows', 'UserController@follows')->name('profile-follows')->middleware('auth');
+Route::get('/user/{id}/follows/users', 'UserController@followsUsers')->name('profile-follows-users')->middleware('auth');
+Route::get('/user/{id}/followers', 'UserController@followers')->name('profile-followers')->middleware('auth');
+Route::post('/user/{id}/followers', 'UserController@followers')->name('profile-followers')->middleware('auth');
 Route::post('/avatar', 'UserController@addAvatar')->middleware('auth');
 Route::post('/tags/add', 'TagController@store')->middleware('can:add-tag')->name('tag-add');
 Route::get('/tags/{filter?}', 'TagController@index')->name('tags');
@@ -81,8 +83,8 @@ Route::post('/tags/single/{id}', 'TagController@show')->name('tag');
 Route::post('/tags/{filter?}', 'TagController@index')->name('tags');
 Route::post('/tag/follow', 'TagController@follow');
 Route::post('/tag/unfollow', 'TagController@unfollow');
-Route::post('/user/follow', 'UserController@follow');
-Route::post('/user/unfollow', 'UserController@unfollow');
+Route::post('/users/follow', 'UserController@follow');
+Route::post('/users/unfollow', 'UserController@unfollow');
 Route::view('/notifications', 'notifications')->name('notifications');
 Route::get('/mark-read', function () {
    auth()->user()->notifications()->where('type', '=', \App\Notifications\NewComment::class)->get()->markAsRead();

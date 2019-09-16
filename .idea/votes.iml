@@ -31,5 +31,6 @@
     <orderEntry type="library" name="bootstrap-select" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
     <orderEntry type="library" name="defaults-ru_RU" level="application" />
+    <orderEntry type="library" name="jquery-3.3.1" level="application" />
   </component>
 </module>

@@ -17,7 +17,8 @@ class TagController extends Controller
     public function index(Request $request, $filter = 'posts')
     {
         $order = $filter . '_count';
-        $ids =  $request->post('ids') ? $request->post('ids') : [];
+        $ids = $request->post('ids') ? $request->post('ids') : [];
+        $ids = array_unique($ids);
         $tags = Tag::withCount('posts', 'followers')
             ->whereNotIn('id', $ids)
             ->limit(6)
@@ -26,27 +27,14 @@ class TagController extends Controller
         if (!$request->ajax()) {
             return view('tag.index', ['tags' => $tags, 'filter' => $filter]);
         } else {
-            $output = '';
-            foreach ($tags as $tag)
-            {
-                $output .= "<div class=\"col-lg-3 col-3 d-flex justify-content-center\">
-                                <div class=\"card\" data-id=\"$tag->id\">
-                                    <div class=\"card-body\">
-                                        <h5 class=\"card-title\"><a href='" . route('tag', $tag->id) ."'>$tag->name</a></h5>
-                                        <p class=\"card-text\">$tag->posts_count  Публикаций</p>
-                                        <a class=\"btn btn-primary\">Подписаться</a>
-                                    </div>
-                                </div>
-                            </div>";
-            }
-            echo $output;
+            $this->loadTags($tags);
         }
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -61,14 +49,14 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Tag  $tag
+     * @param \App\Tag $tag
      * @return \Illuminate\Http\Response
      */
     public function show(int $id, Request $request)
     {
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $tag = Tag::find($id);
-        $posts = $tag->posts()->withCount('likers')
+        $posts = $tag->posts()->withCount('likers', 'comments', 'favoriters')
             ->whereNotIn('post_id', $ids)
             ->with('images', 'user')
             ->orderBy('created_at', 'DESC')
@@ -76,14 +64,14 @@ class TagController extends Controller
         if (!$request->ajax()) {
             return view('tag.single', ['posts' => $posts, 'tag' => $tag]);
         } else {
-            PostController::loadMore($posts);
+            return $posts;
         }
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Tag  $tag
+     * @param \App\Tag $tag
      * @return \Illuminate\Http\Response
      */
     public function edit(Tag $tag)
@@ -94,8 +82,8 @@ class TagController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Tag  $tag
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Tag $tag
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
@@ -106,7 +94,7 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Tag  $tag
+     * @param \App\Tag $tag
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)
@@ -116,22 +104,58 @@ class TagController extends Controller
 
     public function follow(Request $request)
     {
-        if (!$request->ajax())
-        {
+        if (!$request->ajax()) {
             abort(403);
         }
 
         Auth::user()->follow($request->post('tag_id'), Tag::class);
         echo 'unfollow';
     }
+
     public function unfollow(Request $request)
     {
-        if (!$request->ajax())
-        {
+        if (!$request->ajax()) {
             abort(403);
         }
 
         Auth::user()->unfollow($request->post('tag_id'), Tag::class);
         echo 'follow';
     }
+
+    public static function loadTags($tags)
+    {
+        $output = '';
+        foreach ($tags as $tag) {
+            $output .= "<div class=\"topic-content-el\">
+                            <h4>$tag->name</h4>
+                            <ul>
+                                <li>Публикаций " . $tag->posts_count . "</li>
+                                <li>Подписчиков " . $tag->followers_count . "</li>
+                            </ul>";
+            if (Auth::user()) {
+                $output .= '<div onclick="ajaxAction($(this), \'tag\')" class="follow"';
+                if (Auth::user()->isFollowing($tag)) {
+                    $output .= ' hidden ';
+                }
+                $output .= 'data-id="' . $tag->id . '">
+                        <div class="btn_subscribe">
+                             <a class="btn btn-primary">Подписаться</a>
+                        </div>
+                    </div>
+
+                    <div onclick="ajaxAction($(this), \'tag\')" class="unfollow"';
+                if (!Auth::user()->isFollowing($tag)) {
+                    $output .= ' hidden ';
+                }
+                $output .= 'data-id="' . $tag->id . '">
+                        <div class="btn_unscribe">
+                                <a class="btn btn-light">Отписаться</a>
+                        </div>
+                    </div>
+                    </div>';
+            }
+        }
+        echo $output;
+    }
 }
+
