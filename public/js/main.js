@@ -1,18 +1,44 @@
-// window.Pusher = require('pusher-js');
-// import Echo from "laravel-echo";
-//
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: 'your-pusher-key',
-//     cluster: 'eu',
-//     encrypted: true
-// });
-
-
 $(document).ready(function() {
 
-    $('.select_jq').chosen({
-        no_results_text: 'Нет таких результатов',
+
+    function initTexarea(block) {
+        $(block).emojioneArea({
+            search: false,
+            filters: {
+                recent: {
+                    title: 'Часто используемые'
+                },
+                smileys_people: {
+                    title: 'Эмоции и жесты'
+                },
+                animals_nature: {
+                    title: 'Животные и растения'
+                },
+                food_drink: {
+                    title: 'Еда'
+                },
+                activity: {
+                    title: 'Спорт и активности'
+                },
+                travel_places: {
+                    title: 'Путешествия и транспорт'
+                },
+                objects: {
+                    title: 'Предметы'
+                },
+                symbols: {
+                    title: 'Символы'
+                },
+                flags: {
+                    title: 'Флаги'
+                },
+            }
+        });
+    }
+    initTexarea($('.textarea-block__textarea'));
+
+    $('.select_jq').select2({
+        // no_results_text: 'Нет таких результатов',
     });
 
     function closePopUp(wrap) {
@@ -35,6 +61,11 @@ $(document).ready(function() {
 
     $('.signIn_open').on('click', function() {
         openPopUp($('#sign_in'));
+        return false;
+    });
+
+    $('.forgotPass_open').on('click', function() {
+        openPopUp($('#forgot-pass'));
         return false;
     });
 
@@ -96,17 +127,19 @@ $(document).ready(function() {
 
 // $('.inp_comment').emojiarea({button: '.emoji'});
 
-    $('.main-content-top .user').on('click', function() {
-        if ( $('.user-menu').hasClass('open') ) {
-            $('.user-menu').removeClass('open');
+    $('.user').on('click', function() {
+        let wrap_all = $(this);
+        if ( wrap_all.hasClass('open') ) {
+            wrap_all.removeClass('open');
             closeUserMenu();
         }else{
-            $('.user-menu').addClass('open');
-            $('.user-menu').fadeIn(200);
+            wrap_all.addClass('open');
+            wrap_all.find('.user-menu').fadeIn(200);
         }
     });
 
     function closeUserMenu() {
+        $('.user').removeClass('open');
         $('.user-menu').removeClass('open');
         $('.user-menu').fadeOut(200);
     }
@@ -122,11 +155,10 @@ $(document).ready(function() {
         });
     });
 
-
-    $('#messages-content-body').scrollTop($('#messages-content-body').outerHeight());
+    $('#messages-content-body').scrollTop(100000);
 
     if ( $(window).width() <= 1000 ) {
-        $('body').scrollTop($('body').outerHeight());
+        // $('body').scrollTop($('body').outerHeight());
     }
 
     $('.settings-content-el-top').on('click', function() {
@@ -151,14 +183,15 @@ $(document).ready(function() {
     });
 
     if ( $(window).width() > 600 ) {
-        var el = $('.inp_comment').emojioneArea({
-            search: false,
-        });
+        // var el = $('.textarea-block__textarea').emojioneArea({
+        // 	search: false,
+        // });
         $('.inp_comment').click(function(){
             $(this).focus();
         });
 
     }
+
 
     function closeSearchResults() {
         $('.search-results').fadeOut(100);
@@ -173,6 +206,55 @@ $(document).ready(function() {
                 return false;
             }
         });
+    });
+
+
+    $('.close-mail').click(function() {
+        $('.confirm-email').fadeOut(100);
+    });
+
+
+
+    $(document).on('click', '.reply-comment-btn', function() {
+        $('.reply-comment-btn').removeClass('btn-form');
+        $(this).addClass('btn-form');
+        var wrap_all = $(this).closest('.comment-reply');
+        var textarea_block = wrap_all.find('.textarea-block');
+        if ( wrap_all.hasClass('init') ) {
+            if ( wrap_all.hasClass('active') ) {
+                // wrap_all.removeClass('active');
+                // $('.comment-reply').find('.textarea-block').fadeOut(300);
+            }else{
+                $('.content-comments').find('.textarea-block').fadeOut(300);
+                $('.content-comments').find('.comment-reply').removeClass('active');
+                wrap_all.addClass('active');
+                textarea_block.fadeIn(300);
+            }
+        }else{
+            $('.content-comments').find('.textarea-block').fadeOut(300);
+            $('.content-comments').find('.comment-reply').removeClass('active');
+
+            wrap_all.addClass('init');
+            wrap_all.addClass('active');
+            var inner_block = '\
+			<div class="textarea-block">\
+				<textarea class="textarea-block__textarea" data-emojiable="true" placeholder="Напишите сообщение"></textarea>\
+				<div class="textarea-block-media">\
+					<div class="textarea-block-media_el">\
+						<div class="load_media">\
+							<label class="unselectable">\
+								<input type="file">\
+								<img src="/img/camera.svg" alt="">\
+							</label>\
+						</div>\
+					</div>\
+				</div>\
+			</div>';
+            wrap_all.prepend(inner_block);
+            initTexarea(wrap_all.find('.textarea-block__textarea'));
+            wrap_all.find('.textarea-block').fadeIn(300);
+        }
+        return false;
     });
 
 });

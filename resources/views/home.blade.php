@@ -1,11 +1,10 @@
 @extends('layouts/app')
 @section('content')
     <section class="sec-tape">
-        <h2>Моя лента</h2>
         <div class="tape-tabs">
             <ul>
-                <li class="active"><a href="{{ route('my-tags') }}">По темам</a></li>
-                <li><a href="{{ route('my-users') }}">По подпискам</a></li>
+                <li class="{{request()->is('*my/tags*') ? 'active' : ''}}"><a href="{{ route('my-tags') }}">По темам</a></li>
+                <li class="{{request()->is('*my/users*') ? 'active' : ''}}"><a href="{{ route('my-users') }}">По пользователям</a></li>
             </ul>
         </div>
 

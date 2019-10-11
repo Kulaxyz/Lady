@@ -14,18 +14,8 @@
             <h2>Публикация</h2>
             <div class="wrap-publication-content">
                 <div class="publication-content-form">
-                    <form action="{{ route('store-post') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('store-post') }}" method="post" id="addPost" enctype="multipart/form-data">
                         @csrf
-                        <div class="publication-content-form-el">
-                            <h4>Тема</h4>
-                            <div class="select">
-                                <select required class="select_jq" name="tags[]" data-placeholder=" " multiple>
-                                    @foreach($tags as $tag)
-                                        <option value="{{$tag->id}}">{{$tag->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
                         <div class="publication-content-form-el">
                             <h4>Название</h4>
                             <div class="inputs">
@@ -38,26 +28,20 @@
                                 <textarea minlength="5" maxlength="2000" name="description">{{old('description')}}</textarea>
                             </div>
                         </div>
-                        <div class="publication-content-form-el" onclick="$('#add').slideToggle()">
-                            <h4 class="unselectable">Добавить опрос? <span>(нажмите для создания опроса)</span></h4>
-                        </div>
                         <add-field></add-field>
-                        <div class="publication-content-form-bottom">
-{{--                            <div class="add_media">--}}
-{{--                                <label for="files" class="unselectable">--}}
-{{--                                    <ul id="list">--}}
-
-{{--                                    </ul>--}}
-{{--                                    <div class="add_media-content">--}}
-{{--                                        <div class="add_media-icon">--}}
-{{--                                            <img src="/img/camera.png" alt="">--}}
-{{--                                        </div>--}}
-{{--                                        <span>Добавить фото</span>--}}
-{{--                                    </div>--}}
-{{--                                </label>--}}
-{{--                                <input type="file" id="files" multiple="multiple" name="files[]"/>--}}
-
-{{--                            </div>--}}
+                        <div class="publication-content-form-el">
+                            <h4>Тема</h4>
+                            <div class="select">
+                                <select required class="select_jq" name="tags[]" data-placeholder=" " multiple>
+                                    @foreach($tags as $tag)
+                                        <option value="{{$tag->id}}">{{$tag->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="publication-content-form-bottom" style="margin-bottom: 20px">
+                            <div style="margin-bottom:-35px">
+                            <img-upload></img-upload>
 
                             <div class="wrap-checkbox unselectable anon-check">
                                 <label>
@@ -68,17 +52,12 @@
                                     <span>Анонимно</span>
                                 </label>
                             </div>
-
+                            </div>
 
                             <div class="publication-content-form-btn btn-green">
                                 <button type="submit">Опубликовать</button>
                             </div>
                         </div>
-{{--                        <div class="form-group">--}}
-{{--                            <label for="files">Добавить фото</label>--}}
-{{--                            <input type="file" id="files" multiple="multiple" name="files[]" style="visibility: hidden" />--}}
-{{--                            <ul id="list"></ul>--}}
-{{--                        </div>--}}
                     </form>
                 </div>
             </div>
@@ -135,46 +114,6 @@
     {{--    });--}}
     {{--</script>--}}
 
-
-    <script type="text/javascript">
-        function resetAllValues() {
-            $('.sample').find('input:text').val('');
-        }
-
-
-        $(document).ready(function () {
-            $('input:radio[name="type"]').change(
-                function () {
-                    if ($(this).is(':checked') && this.value == 'vote') {
-                        $('.sample').show();
-                    } else {
-                        $('.sample').hide();
-                        resetAllValues();
-                    }
-                });
-        });
-
-        function showFile(e) {
-            console.log(1);
-            var files = e.target.files;
-            for (var i = 0, f; f = files[i]; i++) {
-                if (!f.type.match('image.*')) continue;
-                var fr = new FileReader();
-                fr.onload = (function (theFile) {
-                    return function (e) {
-                        var li = document.createElement('li');
-                        li.innerHTML = "<img src='" + e.target.result + "' />";
-                        document.getElementById('list').insertBefore(li, null);
-                    };
-                })(f);
-                fr.readAsDataURL(f);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('files').addEventListener('change', showFile, false);
-        })
-    </script>
 
 
 @endsection

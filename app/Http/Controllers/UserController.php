@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
+
     public function profile($id)
     {
         $user = User::withCount('posts')->with('posts')->find($id);
@@ -48,7 +53,14 @@ class UserController extends Controller
 
         }
 
-        return redirect()->route('home');
+        return redirect()->route('profile', Auth::id());
+    }
+
+    public function deleteAvatar()
+    {
+        Auth::user()->avatar = 'default.jpg';
+        Auth::user()->save();
+        return redirect()->route('profile', Auth::id());
     }
 
     public function follow(Request $request)
@@ -77,11 +89,13 @@ class UserController extends Controller
         $user = User::withCount('posts', 'followings', 'followers')->find($id);
         $posts = $user->posts()
             ->with('images', 'user')
-            ->withCount('comments', 'likers', 'favoriters')
+            ->withCount('comments', 'likers', 'favoriters', 'bookmarkers')
             ->whereNotIn('posts.id', $ids)
             ->orderBy('created_at', 'DESC')
             ->limit(6)
             ->get();
+        $posts = PostController::addActivities($posts);
+
         if (!$request->ajax()) {
             $followings = $user->followings()->count();
             $followers = $user->followers()->count();

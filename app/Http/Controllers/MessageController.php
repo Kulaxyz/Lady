@@ -18,32 +18,54 @@ class MessageController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-//        dd(Auth::user()->messages()->first()->created_at->toDateTimeString());
-        $messages = Auth::user()->messages()->pluck('user_id', 'receiver_id')->toArray();
-        $receivers = array_keys($messages);
-        $result = array_merge($receivers, $messages);
-        $result = array_unique($result);
+        $ids = $request->post('ids') ? $request->post('ids') : [];
+        $messages = [];
+        $allMessages = Auth::user()->allMessages()->get();
+        foreach ($allMessages as $message) {
+            array_push($messages, $message->receiver_id);
+            array_push($messages, $message->user_id);
+        }
+        $result = array_unique($messages);
 
         if (($key = array_search(Auth::id(), $result)) !== false) {
             unset($result[$key]);
         }
+//        dd($result);
 
-        $users = User::with('messages')->whereIn('id', $result)->get();
-        $users->sort(function ($user){
-            return $user->messages()
-                ->first()->created_at->toDateTimeString();
-        });
-        $users = $users->reverse();
+        $users = User::with('messages')
+            ->whereIn('id', $result)
+            ->whereNotIn('id', $ids)
+            ->limit(10)->get();
 
-        return view('dialogs', compact('users'));
+        $allMessages = collect();
+        foreach ($users as $user) {
+            $user->lastMessage = $user->lastMessage();
+            $user->unreads = $user->unreadMessagesBy(Auth::id());
+            $allMessages->push($user->lastMessage());
+        }
+        $allMessages = $allMessages->sortByDesc('created_at');
+        $newUsers = collect();
 
+        foreach ($allMessages as $message) {
+            for ($i = 0; $i < $users->count(); $i++) {
+                if ($message == $users[$i]->lastMessage) {
+                    $newUsers->push($users[$i]);
+                }
+            }
+        }
+        if (!$request->ajax()) {
+            return view('dialogs', ['users' => $newUsers]);
+        } else {
+            return $newUsers;
+        }
     }
 
     public function chat($id)
     {
         $user = User::find($id);
+        Auth::user()->markMessages($id);
         return view('chat', compact('id', 'user'));
     }
 
@@ -75,6 +97,12 @@ class MessageController extends Controller
 //        return response(['status'=>'Message sent successfully','message'=>$message]);
 //    }
 
+
+    public function markMessages($id)
+    {
+        Auth::user()->markMessages($id);
+    }
+
     public function sendPrivateMessage(Request $request, User $user)
     {
         if (request('file')) {
@@ -97,6 +125,7 @@ class MessageController extends Controller
         } else {
             $input = $request->all();
             $input['receiver_id'] = $user->id;
+            $input['read_at'] = null;
             $message = auth()->user()->messages()->create($input);
             $message->user()->associate($user);
         }

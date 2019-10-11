@@ -3,33 +3,64 @@
     @php $owner = $user->id == Auth::id() @endphp
     <section class="sec-profile">
         <div class="wrap-profile">
-            @if($owner)
-            <h2>Мой профиль</h2>
-            @endif
-            <div class="profile_user">
-                <div class="profile_user_img" style="background-image: url(/storage/images/avatars/{{ $user->avatar}});"></div>
-                <div class="profile_user_name">
-                    <p>{{$user->name}}</p>
-                </div>
-                @if(!$owner)
-                    <span onclick="ajaxAction($(this), 'users')" class="follow"
-                         @if(Auth::user()->isFollowing($user)) hidden @endif
-                         data-id="{{ $user->id }}">
 
-                        <div class="profile_user_btn subscribe">
-                            <a class="user-name-follow">Подписаться</a>
-                        </div>
-                    </span>
-                    <span onclick="ajaxAction($(this), 'users')" class="unfollow"
-                         @if(!(Auth::user()->isFollowing($user))) hidden @endif
-                         data-id="{{ $user->id }}">
-
-                    <div class="profile_user_btn unscribe btn-green">
-                        <a class="user-name-follow">Отписаться</a>
+                <div class="profile_user">
+                    <div class="profile_user_img" style="background-image: url(/storage/images/avatars/{{ $user->avatar}});"></div>
+                    <div class="profile_user_name">
+                        <p>{{$user->name}}</p>
                     </div>
-                    </span>
+                    @if($owner)
+                        <div class="profile-user-upload">
+                            <p>Ваша фотография.<br>
+                                Размер загружаемого файла<br>
+                                не должен превышать 5МБ.
+                            </p>
+                            <div class="profile-user-upload__actions">
+                                <div class="profile-user-upload__upload">
+                                    <form id="avatar-form" action="/avatar" method="POST" enctype="multipart/form-data">
+                                        {{ csrf_field() }}
+                                        <label>
+                                            <input type="file" name="avatar" onchange="$('#avatar-form').submit()">
+                                            <span class="btn-green_nobtn white">Загрузить</span>
+                                        </label>
+                                    </form>
+                                </div>
+                                <div class="profile-user-upload__delete">
+                                    <form action="/avatar-delete" method="POST" enctype="multipart/form-data">
+                                        {{ csrf_field() }}
+                                        <button type="submit" class="btn-green_nobtn">Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                @if(!$owner)
+                        <div class="profile_user_time">
+                            @if($user->last_online_at->diffInMinutes(now()) < 5 )
+                                <p>Online</p>
+                            @else
+                            <p>Была в сети {{ $user->last_online_at->diffForHumans() }}</p>
+                            @endif
+                        </div>
+                    <div onclick="ajaxAction($(this), 'users')"
+                         class="@if(Auth::user()->isFollowing($user))unfollow @else()follow @endif"
+                         data-id="{{ $user->id }}">
+
+                        <div class="profile_user_btn @if(Auth::user()->isFollowing($user))btn-green unscribe @else  subscribe @endif">
+                            <a>@if(Auth::user()->isFollowing($user)) Отписаться @else Подписаться @endif</a>
+                        </div>
+                    </div>
+{{--                    <div onclick="ajaxAction($(this), 'users')" class="unfollow"--}}
+{{--                         @if(!(Auth::user()->isFollowing($user))) hidden @endif--}}
+{{--                         data-id="{{ $user->id }}">--}}
+
+{{--                    <div class="profile_user_btn unscribe btn-green">--}}
+{{--                        <a>Отписаться</a>--}}
+{{--                    </div>--}}
+{{--                    </div>--}}
                     <div class="btn-green write-message">
-                        <a href="#">Написать сообщение</a>
+                        <a href="{{route('chat', $user->id)}}">Написать сообщение</a>
                     </div>
                 @endif
             </div>
@@ -56,26 +87,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="profile_settigns">
-                <div class="profile_settigns-el">
-                    <a href="/pages/settings.html">
-                        <div class="profile_settigns-el-content">
-                            <div class="profile_settigns-el-icon">
-                                <img src="/img/settigns.png" alt="">
-                            </div>
-                            <span>Настройки</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="profile_settigns-el">
-                    <div class="profile_settigns-el-content">
-                        <div class="profile_settigns-el-icon">
-                            <img src="/img/exit.png" alt="">
-                        </div>
-                        <span>Выйти</span>
-                    </div>
-                </div>
-            </div>
+
             <div class="wrap-profile-content">
                 @yield('inner')
             </div>

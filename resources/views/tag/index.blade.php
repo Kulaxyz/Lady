@@ -3,7 +3,6 @@
 
     <section class="sec-topic">
         <div class="wrap-topic">
-            <h2>Темы</h2>
             <div class="tape-tabs">
                 <ul>
                     <li class="{{ (request()->is('*tags')) ? 'active' : '' }}"><a href="{{ route('tags') }}">По количеству публикаций</a></li>
@@ -18,7 +17,7 @@
             </div>
 
             <div onclick="loadTags()" class="btn-green tapes-else">
-                <a >Смотреть еще <img src="/img/tape/else_icon.png" alt=""></a>
+                <a >Смотреть еще <img src="/img/tape/else_icon.svg" alt=""></a>
             </div>
         </div>
     </section>

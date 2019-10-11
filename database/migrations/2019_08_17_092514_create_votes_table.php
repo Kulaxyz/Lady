@@ -18,10 +18,9 @@ class CreateVotesTable extends Migration
             $table->string('user_id');
             $table->unsignedInteger('option_id');
             $table->timestamps();
-            $table->foreign('option_id')->references('id')->on('options');
+            $table->foreign('option_id')->references('id')->on('options')->onDelete('cascade');
         });
     }
-
     /**
      * Reverse the migrations.
      *

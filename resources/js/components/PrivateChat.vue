@@ -4,8 +4,8 @@
             <h2>Сообщения</h2>
             <div class="wrap-messages-content">
                 <div class="messages-content-top">
-                    <div class="messages-content-top-back">
-                        <a href="#">
+                    <div class="messages-content-top-back" @click="redirect">
+                        <a>
                             <div class="icon_back">
                                 <img src="/img/arr_back.png" alt="">
                             </div>
@@ -14,7 +14,7 @@
                     </div>
                     <div class="messages-content-top-name">
                         <div class="content-top-name-user">
-                            <span>{{friend.name}}</span>
+                            <span><a :href="'/user/' + friend.id">{{friend.name}}</a></span>
                         </div>
                         <div class="content-top-time">
                             <span>был в сети вчера в 18:58</span>
@@ -22,27 +22,54 @@
                     </div>
                     <div class="messages-content-top-user_icon" :style="'background-image: url(/storage/images/avatars/' + friend.avatar + ');'"></div>
                 </div>
-                    <message-list :user="user" :all-messages="allMessages"></message-list>
-                <div class="messages-content-foot"  @keyup.enter="sendMessage">
-                    <div class="detail-content-comments-add">
-                        <div class="comment-reply-input">
-                            <input type="hidden" @input="handleInput($event.target.value)"
-                                   class="inp_comment"
-                                   placeholder="Напишите сообщение..."
-                                   data-emojiable="false">
+                <message-list :user="user" :all-messages="allMessages"></message-list>
+                <!--                <div class="messages-content-foot"  @keyup.enter="sendMessage">-->
+                <!--                    <div class="detail-content-comments-add">-->
+                <!--                        <div class="comment-reply-input">-->
+                <!--                            <input type="hidden" @input="handleInput($event.target.value)"-->
+                <!--                                   class="inp_comment"-->
+                <!--                                   placeholder="Напишите сообщение..."-->
+                <!--                                   data-emojiable="false">-->
 
-                            <div class="comment-reply-input-media">
-                                <div class="comment-reply-input-media_el">
+                <!--                            <div class="comment-reply-input-media">-->
+                <!--                                <div class="comment-reply-input-media_el">-->
+                <!--                                    <div class="load_media">-->
+                <!--                                        <file-upload-->
+                <!--                                            :post-action="'/private-messages/'+activeFriend"-->
+                <!--                                            ref='upload'-->
+                <!--                                            v-model="files"-->
+                <!--                                            @input-file="$refs.upload.active = true"-->
+                <!--                                            :headers="{'X-CSRF-TOKEN': token}"-->
+                <!--                                        >-->
+                <!--                                            <img src="/img/camera.svg" alt="">-->
+                <!--                                        </file-upload>-->
+                <!--                                    </div>-->
+                <!--                                </div>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div @click="sendMessage" class="btn-green">-->
+                <!--                            <a>Отправить</a>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <div class="messages-content-foot" @keyup.enter="sendMessage">
+                    <div class="detail-content-comments-add">
+                        <div class="textarea-block">
+                            <textarea class="textarea-block__textarea" data-emojiable="true" placeholder="Напишите сообщение"></textarea>
+                            <div class="textarea-block-media">
+                                <div class="textarea-block-media_el">
                                     <div class="load_media">
-                                        <file-upload
-                                            :post-action="'/private-messages/'+activeFriend"
-                                            ref='upload'
-                                            v-model="files"
-                                            @input-file="$refs.upload.active = true"
-                                            :headers="{'X-CSRF-TOKEN': token}"
-                                        >
-                                            <img src="/img/camera.png" alt="">
-                                        </file-upload>
+                                        <label class="unselectable">
+                                            <file-upload
+                                                :post-action="'/private-messages/'+activeFriend"
+                                                ref='upload'
+                                                v-model="files"
+                                                @input-file="$refs.upload.active = true"
+                                                :headers="{'X-CSRF-TOKEN': token}"
+                                            >
+                                                <img src="/img/camera.svg" alt="">
+                                            </file-upload>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -59,66 +86,66 @@
 
 
 
-<!--    <v-layout row>-->
-<!--        <v-flex id="privateMessageBox" class="messages mb-5" xs9>-->
-<!--            <message-list :user="user" :all-messages="allMessages"></message-list>-->
+    <!--    <v-layout row>-->
+    <!--        <v-flex id="privateMessageBox" class="messages mb-5" xs9>-->
+    <!--            <message-list :user="user" :all-messages="allMessages"></message-list>-->
 
-<!--            <div class="floating-div">-->
-<!--                <picker v-if="emoStatus" set="emojione" @select="onInput" title="Выберите…" />-->
+    <!--            <div class="floating-div">-->
+    <!--                <picker v-if="emoStatus" set="emojione" @select="onInput" title="Выберите…" />-->
 
-<!--            </div>-->
+    <!--            </div>-->
 
-<!--            <v-footer-->
-<!--                height="auto"-->
-<!--                fixed-->
-<!--                color="grey"-->
-<!--            >-->
-<!--                <v-layout row >-->
-<!--                    <v-flex class="ml-2 text-right" xs1>-->
-<!--                        <v-btn @click="toggleEmo" fab dark small color="pink">-->
-<!--                            <v-icon>insert_emoticon </v-icon>-->
-<!--                        </v-btn>-->
-<!--                    </v-flex>-->
+    <!--            <v-footer-->
+    <!--                height="auto"-->
+    <!--                fixed-->
+    <!--                color="grey"-->
+    <!--            >-->
+    <!--                <v-layout row >-->
+    <!--                    <v-flex class="ml-2 text-right" xs1>-->
+    <!--                        <v-btn @click="toggleEmo" fab dark small color="pink">-->
+    <!--                            <v-icon>insert_emoticon </v-icon>-->
+    <!--                        </v-btn>-->
+    <!--                    </v-flex>-->
 
-<!--                    <v-flex xs1 class="text-center">-->
-<!--                        <file-upload-->
-<!--                            :post-action="'/private-messages/'+activeFriend"-->
-<!--                            ref='upload'-->
-<!--                            v-model="files"-->
-<!--                            @input-file="$refs.upload.active = true"-->
-<!--                            :headers="{'X-CSRF-TOKEN': token}"-->
-<!--                        >-->
-<!--                            <v-icon class="mt-3">attach_file</v-icon>-->
-<!--                        </file-upload>-->
+    <!--                    <v-flex xs1 class="text-center">-->
+    <!--                        <file-upload-->
+    <!--                            :post-action="'/private-messages/'+activeFriend"-->
+    <!--                            ref='upload'-->
+    <!--                            v-model="files"-->
+    <!--                            @input-file="$refs.upload.active = true"-->
+    <!--                            :headers="{'X-CSRF-TOKEN': token}"-->
+    <!--                        >-->
+    <!--                            <v-icon class="mt-3">attach_file</v-icon>-->
+    <!--                        </file-upload>-->
 
-<!--                    </v-flex>-->
-<!--                    <v-flex xs6 >-->
-<!--                        <v-text-field-->
-<!--                            rows=2-->
-<!--                            v-model="message"-->
-<!--                            label="Enter Message"-->
-<!--                            single-line-->
-<!--                            @keyup.enter="sendMessage"-->
-<!--                        ></v-text-field>-->
-<!--                    </v-flex>-->
+    <!--                    </v-flex>-->
+    <!--                    <v-flex xs6 >-->
+    <!--                        <v-text-field-->
+    <!--                            rows=2-->
+    <!--                            v-model="message"-->
+    <!--                            label="Enter Message"-->
+    <!--                            single-line-->
+    <!--                            @keyup.enter="sendMessage"-->
+    <!--                        ></v-text-field>-->
+    <!--                    </v-flex>-->
 
-<!--                    <v-flex xs4>-->
-<!--                        <v-btn-->
-<!--                            @click="sendMessage"-->
-<!--                            dark class="mt-3 ml-2 white&#45;&#45;text" small color="green">send</v-btn>-->
-
-
-<!--                    </v-flex>-->
-
-<!--                </v-layout>-->
+    <!--                    <v-flex xs4>-->
+    <!--                        <v-btn-->
+    <!--                            @click="sendMessage"-->
+    <!--                            dark class="mt-3 ml-2 white&#45;&#45;text" small color="green">send</v-btn>-->
 
 
-<!--            </v-footer>-->
+    <!--                    </v-flex>-->
+
+    <!--                </v-layout>-->
 
 
-<!--        </v-flex>-->
+    <!--            </v-footer>-->
 
-<!--    </v-layout>-->
+
+    <!--        </v-flex>-->
+
+    <!--    </v-layout>-->
 </template>
 
 <script>
@@ -188,6 +215,10 @@
                     setTimeout(this.scrollToEnd,100);
                 });
             },
+            redirect() {
+                window.location.href = '/dialogs';
+            }
+            ,
             fetchMessages() {
                 axios.get('/private-messages/'+this.activeFriend).then(response => {
                     this.allMessages = response.data;
@@ -218,16 +249,13 @@
                 console.log('onrespnse file up',e);
             }
 
-
         },
 
         mounted(){
-            console.log(this.activeFriend);
+            axios.get('/mark-messages/' + this.activeFriend).then(response => {
 
-        console.log(this.user);
-        },
+            });
 
-        created(){
             this.fetchMessages();
 
             Echo.private('privatechat.'+this.user.id)

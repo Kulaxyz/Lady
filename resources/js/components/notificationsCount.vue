@@ -1,6 +1,6 @@
 <template>
-    <div class="count_activity" v-if="notifications !== 0">
-        <span>notifications</span>
+    <div v-if="notifications !== 0" class="count_activity">
+        <span>{{ notifications }}</span>
     </div>
 </template>
 
@@ -11,7 +11,7 @@
 
         data() {
             return {
-                notifications: null,
+                notifications: 0,
             }
         },
 

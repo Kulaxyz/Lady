@@ -2,7 +2,6 @@
 @section('content')
     <section class="sec-notification">
         <div class="wrap-notification">
-            <h2>Уведомления</h2>
             <div class="wrap-notification-content">
                 @if(Auth::user()->unreadNotifications()->where('type', '=', \App\Notifications\NewComment::class)->count() <= 10)
                     @forelse(Auth::user()->notifications()

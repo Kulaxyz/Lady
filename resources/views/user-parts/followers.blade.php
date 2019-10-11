@@ -17,25 +17,25 @@
                         </div>
                     </div>
                 </a>
-                @auth
-                    <div onclick="ajaxAction($(this), 'users')" class="follow" @if(Auth::user()->isFollowing($follower)) hidden @endif data-id="{{ $follower->id }}">
-                        <div class="btn_subscribe">
-                            <a class="user-name-follow">Подписаться</a>
-                        </div>
-                    </div>
+{{--                @auth--}}
+{{--                    <div onclick="ajaxAction($(this), 'users')" class="follow" @if(Auth::user()->isFollowing($follower)) hidden @endif data-id="{{ $follower->id }}">--}}
+{{--                        <div class="btn_subscribe">--}}
+{{--                            <a class="user-name-follow">Подписаться</a>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
 
-                    <div onclick="ajaxAction($(this), 'users')" class="unfollow" @if(!(Auth::user()->isFollowing($follower))) hidden @endif data-id="{{ $follower->id }}">
-                        <div class="btn_unscribe profile_user_btn btn-green">
-                            <a class="user-name-follow">Отписаться</a>
-                        </div>
-                    </div>
-                @endauth
+{{--                    <div onclick="ajaxAction($(this), 'users')" class="unfollow" @if(!(Auth::user()->isFollowing($follower))) hidden @endif data-id="{{ $follower->id }}">--}}
+{{--                        <div class="btn_unscribe profile_user_btn btn-green">--}}
+{{--                            <a class="user-name-follow">Отписаться</a>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                @endauth--}}
 
             </div>
         @endforeach
     </div>
     <div onclick="loadFollowers()" class="btn-green tapes-else">
-        <a href="#">Смотреть еще <img src="/img/tape/else_icon.png" alt=""></a>
+        <a href="#">Смотреть еще <img src="/img/tape/else_icon.svg" alt=""></a>
     </div>
 </div>
 

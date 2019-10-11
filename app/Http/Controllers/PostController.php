@@ -8,16 +8,17 @@ use App\Post;
 use App\Tag;
 use App\User;
 use App\Vote;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
-use phpDocumentor\Reflection\Types\Array_;
-use PhpParser\Node\Expr\Cast\Object_;
-use vendor\project\StatusTest;
 use Carbon\Carbon;
 use App\Events\NewPost;
+use Illuminate\Support\Str;
+use Artesaos\SEOTools\Facades\SEOTools as SEO;
+
 use function Sodium\add;
 
 class PostController extends Controller
@@ -55,17 +56,40 @@ class PostController extends Controller
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $sub = 'sub' . $time;
         $posts = Post::with('images', 'tags', 'options', 'user')
-            ->withCount('likers', 'comments', 'favoriters')
+            ->withCount('likers', 'comments', 'favoriters', 'bookmarkers')
             ->whereNotIn('id', $ids)
             ->where('created_at', '>', Carbon::now()->$sub())
             ->orderBy($order_by, 'DESC')
             ->limit(LIMIT_OF_POSTS)
             ->get();
+
+        $posts = $this->addActivities($posts);
+
+
         if (!$request->ajax()) {
-            return view('post.index', compact('posts', 'filter', 'time'));
+            $last_modified = $posts->first() ? $posts->first()->updated_at->toDateTimeString() : null;
+            return response()
+                ->view('post.index', compact('posts', 'filter', 'time'))
+                ->header('Last-Modified: ' . $last_modified, true, 304);
         } else {
             return $posts;
         }
+    }
+
+    public function popular(Request $request, $time = 'day')
+    {
+        $filter = 'popular';
+        return $this->all($request, $filter, $time);
+    }
+    public function discussed(Request $request, $time = 'day')
+    {
+        $filter = 'discussed';
+        return $this->all($request, $filter, $time);
+    }
+    public function live(Request $request, $time = 'day')
+    {
+        $filter = 'live';
+        return $this->all($request, $filter, $time);
     }
 
     public function favorites(Request $request, $filter = null)
@@ -78,12 +102,18 @@ class PostController extends Controller
         $ids = $request->post('ids') ? $request->post('ids') : [];
         $posts = Auth::user()->favorites(Post::class)->with('images', 'tags', 'options', 'user')
             ->whereNotIn('id', $ids)
-            ->withCount('likers', 'comments', 'favoriters')
+            ->withCount('likers', 'comments', 'favoriters', 'bookmarkers')
             ->orderBy($order, 'DESC')
             ->limit(LIMIT_OF_POSTS)
             ->get();
+        $posts = $this->addActivities($posts);
+
         if (!$request->ajax()) {
-            return view('post.favorites', ['posts' => $posts]);
+            $last_modified = $posts->first() ? $posts->first()->updated_at : null;
+
+            return response()
+                    ->view('post.favorites', ['posts' => $posts])
+                ->header('Last-Modified: ' . $last_modified, true, 304);
         } else {
             return $posts;
         }
@@ -109,17 +139,29 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        $tags = $request->input('tags');
+
+        if (count($tags) > 4) {
+            new ValidationException('Вы можете выбрать только 4 тега');
+        }
+
         $post = new Post();
         $post->title = $request->post('title');
-        $post->description = $request->post('description');
+        $post->description = $this->nofollow($request->post('description'));
+
         $post->type = $request->post('options')[0] ? 'vote' : 'post';
+        if ((preg_match('~.*?\?.*?~', $post->title) || preg_match('~.*?\?.*?~', $post->description)) && $post->type != 'vote') {
+            $post->type = 'question';
+        }
         $post->is_anonimous = $request->has('anon') ? true : false;
         $post->user_id = Auth::user()->id;
         $post->user()->associate(Auth::user());
 
         $post->save();
+        $post->slug = Str::slug($post->title . '-' . $post->id);
 
-        $tags = $request->input('tags');
+        $post->save();
+
         $post->tags()->sync($tags);
         $tags = Tag::whereIn('id', $tags)->get();
         $tags_followers = [];
@@ -139,11 +181,12 @@ class PostController extends Controller
         if ($request->has('files')) {
 
             $images = $request->files->all()['files'];
+            $i=1;
             foreach ($images as $image) {
-                $fileName = time() . '.' . $image->getClientOriginalExtension();
+                $fileName = $i . time() . '.' . $image->getClientOriginalExtension();
                 $destination_path = 'public/images/posts';
                 $img = Image::make($image->getRealPath());
-                $img->resize(300, 300, function ($constraint) {
+                $img->resize(650, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
                 $img->stream(); // <-- Key point
@@ -155,6 +198,7 @@ class PostController extends Controller
                 $postImage->post_id = $post->id;
                 $postImage->post()->associate($post);
                 $postImage->save();
+                $i++;
             }
         }
 
@@ -169,28 +213,46 @@ class PostController extends Controller
         }
         Auth::user()->favorite($post, Post::class);
 
-
-
-        return redirect()->to('posts/single/' . $post->id);
+        return redirect()->to('posts/' . $post->slug);
 
     }
 
     /**
      * Display the specified resource.
      *
-     * @param \App\Post $post
+     * @param string $slug
      * @return \Illuminate\Http\Response
      */
-    public function show(int $id)
+    public function show(string $slug)
     {
         $post = Post::with('images', 'tags', 'options', 'user', 'votes')
-            ->withCount('likers', 'comments', 'favoriters')
-            ->find($id);
-        return view('post.show', [
-            'post' => $post, 'tags' => $post->tags,
-            'images' => $post->images, 'user' => $post->user,
-            'options' => $post->options()->get()
-        ]);
+            ->withCount('likers', 'comments', 'favoriters', 'bookmarkers')
+            ->where('slug', $slug)->first();
+        if (!$post) {
+            abort(404);
+        }
+
+        $desc = strlen($post->description) > 220 ? mb_substr($post->description, 0, 240) : $post->description;
+        SEO::setTitle($post->title);
+        SEO::setDescription($desc);
+
+        SEO::opengraph()->setTitle($post->title);
+        SEO::opengraph()->setDescription($desc);
+        SEO::opengraph()->setUrl(url()->current());
+        foreach ($post->images() as $image) {
+            SEO::opengraph()->addImage(asset('storage/images/posts') . '/' . $image->path);
+        }
+
+        $last_modified = $post->updated_at->toDateTimeString();
+
+        return response()
+            ->view('post.show', [
+                'post' => $post, 'tags' => $post->tags,
+                'images' => $post->images, 'user' => $post->user,
+                'options' => $post->options()->get()
+            ], 200)
+            ->header('Last-Modified:', '304 Not Modified');
+
     }
 
     /**
@@ -223,7 +285,7 @@ class PostController extends Controller
     public function destroy($post_id)
     {
         Post::destroy($post_id);
-        return redirect()->route('list', 'live');
+        return redirect()->route('live');
     }
 
 
@@ -315,6 +377,20 @@ class PostController extends Controller
         echo 'like';
     }
 
+    public function upvote(Request $request)
+    {
+        $this->checkAjax($request);
+        Auth::user()->bookmark($request->post('post_id'), Post::class);
+        echo 'downvote';
+    }
+
+    public function downvote(Request $request)
+    {
+        $this->checkAjax($request);
+        Auth::user()->unbookmark($request->post('post_id'), Post::class);
+        echo 'upvote';
+    }
+
     public function favorite(Request $request)
     {
         $this->checkAjax($request);
@@ -339,6 +415,37 @@ class PostController extends Controller
             abort(403);
         }
         return true;
+    }
+
+    public static function addActivities($posts)
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            foreach ($posts as $post) {
+                $post->hasLiked = $user->hasLiked($post->id, Post::class);
+                $post->hasDisliked = $user->hasBookmarked($post->id, Post::class);
+                $post->hasFavorited = $user->hasFavorited($post->id, Post::class);
+            }
+        } else {
+            foreach ($posts as $post) {
+                $post->hasLiked = false;
+                $post->hasDisliked = false;
+                $post->hasFavorited = false;
+            }
+        }
+        return $posts;
+    }
+
+    public static function nofollow($data, $skip = null)
+    {
+        $d= preg_replace_callback('~href=(["\'])([a-z0-9]++://(?![a-z0-9\.]*?lsecrets\.ru).*?)\1~', function ($matches) {
+            return "$matches[0] rel='nofollow'";
+        }, $data);
+        $result= preg_replace_callback('~<a\s.*?href=\"(?!.*?lsecrets)([^\"]*)\"\s.*?>(.*)<\/a>~', function ($matches) {
+            return "<noindex>$matches[0]</noindex>>";
+        }, $d);
+
+        return $result;
     }
 
 }

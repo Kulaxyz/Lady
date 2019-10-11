@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Events\CommentCreated;
 use App\Events\CommentUpdated;
 use App\Events\CommentDeleted;
+use Overtrue\LaravelFollow\Traits\CanBeBookmarked;
+use Overtrue\LaravelFollow\Traits\CanBeLiked;
+
 
 class Comment extends Model
 {
+    use CanBeBookmarked, CanBeLiked;
     /**
      * The relations to eager load on every query.
      *

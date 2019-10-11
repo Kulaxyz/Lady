@@ -18,18 +18,23 @@
 <!--        </div>-->
 <!--    </div>-->
 
+<div>
+    <div class="publication-content-form-el" @click="showMe = !showMe">
 
-
-    <div id="add" class="publication-content-form-el delete_margin_bottom" style="display: none;">
+        <h4 v-if="!showMe" class="unselectable">Добавить опрос? <span>(нажмите для создания опроса)</span></h4>
+        <h4 v-if="showMe" class="unselectable">Убрать опрос? <span>(нажмите для удаления опроса)</span></h4>
+    </div>
+    <div id="add"  v-show="showMe" class="publication-content-form-el delete_margin_bottom">
         <h4>Варианты ответов:</h4>
         <div class="inputs">
-            <div class="input-el" v-for="(guest, index) in guests">
-                                <label @dblclick="deleteGuest(index)">
-                                    Вариант {{ index + 1 }}
-                                </label>
-
-                <input name="options[]" class="inp_maxlength" type="text" v-model="guests[index]" minlength="1" maxlength="120">
-                <p>Осталось - <span class="count_limit">{{120 - guests[index].length}}</span></p>
+            <div class="input-el" v-for="(guest, index) in guests" >
+                <input v-if="showMe" name="options[]" required class="inp_maxlength" type="text" v-model="guests[index]" minlength="1" maxlength="120">
+                <div class="input-el__media">
+                    <p>Осталось - <span class="count_limit">{{120 - guests[index].length}}</span></p>
+                    <div class="input-el__delete" @click="deleteGuest(index)">
+                        <span>удалить</span>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -37,6 +42,7 @@
             <span @click="addGuest" class="unselectable">Добавить еще вариант?</span>
         </div>
     </div>
+</div>
 
 </template>
 
@@ -45,7 +51,8 @@
         name: "AddField",
         data() {
             return {
-                guests: ['']
+                guests: [''],
+                showMe: false,
             }
         },
         methods: {

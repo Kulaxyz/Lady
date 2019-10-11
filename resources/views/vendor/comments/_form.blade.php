@@ -10,7 +10,7 @@
                 {{ $errors->get('commentable_id') }}
             </div>
         @endif
-        <form method="POST" action="{{ url('comments') }}">
+        <form id="fcomment" method="POST" action="{{ url('comments') }}">
             @csrf
             <input type="hidden" name="commentable_type" value="\{{ get_class($model) }}" />
             <input type="hidden" name="commentable_id" value="{{ $model->id }}" />
@@ -39,31 +39,30 @@
 
 
             <div class="detail-content-comments-add">
-                <div class="comment-reply-input">
-                    <input name="message" class="inp_comment" type="text" placeholder="Напишите сообщение..." data-emojiable="true">
-                    <div class="comment-reply-input-media">
-                        <div class="comment-reply-input-media_el">
+                <div class="textarea-block">
+                    <textarea name="message" class="textarea-block__textarea" data-emojiable="true" placeholder="Напишите сообщение"></textarea>
+                    <div class="textarea-block-media">
+                        <div class="textarea-block-media_el">
                             <div class="load_media">
                                 <label class="unselectable">
                                     <input type="file">
-                                    <img src="/img/camera.png" alt="">
+                                    <img src="/img/camera.svg" alt="">
                                 </label>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="wrap-checkbox unselectable anon-check">
-                    <label>
-                        <div class="checkbox-el">
-                            <input type="checkbox" name="anon">
-                            <div class="checkbox"></div>
-                        </div>
-                        <span>Анонимно</span>
-                    </label>
-                </div>
-
+{{--                <div class="wrap-checkbox unselectable anon-check">--}}
+{{--                    <label>--}}
+{{--                        <div class="checkbox-el">--}}
+{{--                            <input type="checkbox" name="anon">--}}
+{{--                            <div class="checkbox"></div>--}}
+{{--                        </div>--}}
+{{--                        <span>Анонимно</span>--}}
+{{--                    </label>--}}
+{{--                </div>--}}
                 <div class="btn-green">
-                    <button type="submit">Отправить</button>
+                    <a onclick="$('#fcomment').submit()" >Отправить</a>
                 </div>
             </div>
 {{--            <button type="submit" class="btn btn-sm btn-outline-success text-uppercase">Отправить</button>--}}

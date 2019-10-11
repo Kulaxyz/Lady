@@ -9,6 +9,9 @@ use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Comment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Laravelista\Comments\CommentControllerInterface;
 use Faker\Factory;
 
@@ -64,9 +67,24 @@ class CommentController extends Controller// implements CommentControllerInterfa
         } else {
             $comment->commenter()->associate(auth()->user());
         }
-
         $comment->commentable()->associate($model);
-        $comment->comment = $request->message;
+
+        if (request('file')) {
+            $image = request('file');
+            $fileName = time() . '.' . $image->getClientOriginalExtension();
+
+            $img = Image::make($image->getRealPath());
+            $img->resize(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+
+            $img->stream(); // <-- Key point
+            Storage::disk('local')->put('public/images/comments' . '/' . $fileName, $img, 'public');
+            $comment->comment = $fileName;
+        } else {
+            $comment->comment = PostController::nofollow($request->message);
+        }
+
         if ($request->anon) {
             $str = url()->previous();
             preg_match_all('!\d+!', $str, $matches);
@@ -149,10 +167,36 @@ class CommentController extends Controller// implements CommentControllerInterfa
         $reply->commenter()->associate(auth()->user());
         $reply->commentable()->associate($comment->commentable);
         $reply->parent()->associate($comment);
-        $reply->comment = $request->message;
+        $reply->comment = PostController::nofollow($request->message);
         $reply->approved = !config('comments.approval_required');
         $reply->save();
 
         return redirect()->to(url()->previous() . '#comment-' . $reply->id);
     }
+
+    public function like(Request $request)
+    {
+        Auth::user()->like($request->post('comment_id'), Comment::class);
+        echo 'dislike';
+    }
+
+    public function dislike(Request $request)
+    {
+        Auth::user()->unlike($request->post('comment_id'), Comment::class);
+        echo 'like';
+    }
+
+    public function upvote(Request $request)
+    {
+        Auth::user()->bookmark($request->post('comment_id'), Comment::class);
+        echo 'downvote';
+    }
+
+    public function downvote(Request $request)
+    {
+        Auth::user()->unbookmark($request->post('comment_id'), Comment::class);
+        echo 'upvote';
+    }
+
+
 }

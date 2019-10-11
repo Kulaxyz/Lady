@@ -15,13 +15,25 @@ function ajaxAction(obj, type) {
             if (type == 'users')
             {
                 newClass = data == 'follow' ? 'subscribe' : 'unscribe';
+                if(newClass == 'unscribe') {
+                    newClass += ' btn-green';
+                }
             }
             $(text).text(newText);
             $(child).removeClass();
-            $(child).addClass(newClass).addClass('profile_user_btn');
+            $(child).addClass(newClass).addClass(' profile_user_btn');
         },
         error: function (data) {
             alert(data);
         }
     });
+}
+$(document).ready(function () {
+    let sc = $('.chosen-choices');
+    sc.change(function () {
+        console.log(1);
+    })
+});
+function sendComment() {
+    $('.emojionearea-editor').innerHTML
 }

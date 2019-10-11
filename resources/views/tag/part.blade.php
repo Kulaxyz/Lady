@@ -1,5 +1,5 @@
     <div class="topic-content-el">
-        <h4><a href="{{route('tag', $tag->id)}}">{{ $tag->name }}</a></h4>
+        <h4><a href="{{route('tag', $tag->slug)}}">{{ $tag->name }}</a></h4>
         <ul>
             <li>Публикаций {{ $tag->posts_count }}</li>
             <li>Подписчиков {{ $tag->followers_count }}</li>

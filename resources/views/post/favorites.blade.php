@@ -1,6 +1,5 @@
 @extends('layouts/app')
 @section('content')
-    <h2>Закладки</h2>
     <div class="tape-tabs">
         <ul>
             <li class="{{ (request()->is('*favorites/followables')) ? 'active' : '' }}">

@@ -3,15 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Overtrue\LaravelFollow\Traits\CanBeBookmarked;
 use Overtrue\LaravelFollow\Traits\CanBeFavorited;
 use Overtrue\LaravelFollow\Traits\CanBeLiked;
 use Laravelista\Comments\Commentable;
-
+use Overtrue\LaravelFollow\Traits\CanBeVoted;
 
 
 class Post extends Model
 {
-    use CanBeLiked, CanBeFavorited, Commentable;
+    use CanBeLiked, CanBeFavorited, Commentable, CanBeBookmarked;
 
     protected $table = 'posts';
     protected $primaryKey = 'id';

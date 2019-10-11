@@ -1,3 +1,45 @@
+@media screen and (max-height: 919px) and (min-width: 1000px) {
+  #wrap-content-content .wrap-left-menu,
+  #wrap-content-content .wrap-main-content,
+  #wrap-content-content .wrap-main-content {
+    padding-top: 15px;
+  }
+  .left-menu-content .menu,
+  .left-menu-content .link_post,
+  .site-info,
+  p.foot-info-site {
+    margin-top: 15px;
+  }
+}
+@media screen and (max-height: 773px) and (min-width: 1000px) {
+  .left-menu-content .menu ul li a {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}
+@media screen and (max-height: 656px) and (min-width: 1000px) {
+  .site-info li {
+    margin-bottom: 3px;
+  }
+  p.foot-info-site {
+    margin-top: 3px;
+  }
+  .logo_img {
+    width: 180px;
+  }
+  .left-menu-content .menu {
+    margin-top: 5px;
+  }
+}
+@media screen and (max-width: 1350px) {
+  #wrap-content-content .wrap-left-menu {
+    transform: none;
+    left: 10px;
+  }
+  #wrap-content-content .wrap-main-content {
+    margin-left: 303px;
+  }
+}
 @media screen and (max-width: 1000px) {
   body {
     background-color: #fcf6f5;
@@ -27,8 +69,6 @@
     text-align: center;
   }
   .top_mobile_head .top_mobile_head-publish span {
-    position: relative;
-    top: -8px;
     display: block;
     margin-top: 4px;
     font-size: 12px;
@@ -45,6 +85,7 @@
     margin: 0;
     padding: 0;
     position: fixed;
+    top: auto;
     bottom: 0;
     left: 0;
     right: 0;
@@ -119,11 +160,18 @@
   #wrap-content-content .wrap-left-menu .link_post {
     display: none;
   }
-  #wrap-content-content .wrap-left-menu .site-info {
+  #wrap-content-content .wrap-left-menu .site-info_desctop {
     display: none;
   }
   #wrap-content-content .wrap-left-menu .foot-info-site {
     display: none;
+  }
+  .site-info li:nth-child(2n) {
+    margin-right: 24px;
+  }
+  .site-info {
+    margin-top: 0;
+    margin-bottom: 20px;
   }
   #wrap-content-content .wrap-main-content {
     padding: 0;
@@ -318,8 +366,78 @@
   section.messages {
     margin-top: 31px;
   }
+  .wrap-authorization .authorization-el span {
+    font-size: 14px;
+  }
+  .main-content-top.first {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .main-content-top.first .wrap-authorization {
+    order: 1;
+    margin-bottom: 20px;
+  }
+  .main-content-top.first .search {
+    order: 2;
+  }
+  .wrap-authorization .authorization-el img {
+    max-width: 30px;
+  }
+  .wrap-authorization.desctop {
+    display: none;
+  }
+  .top_mobile_head-publish-authorization {
+    display: block;
+  }
+  .top_mobile_head .top_mobile_head-logo {
+    margin-right: 0;
+  }
+  .pop-up-body-authorization {
+    max-width: 100%;
+  }
+  .wrap-pop-up .pop-up-body {
+    max-width: 600px;
+    width: 100%;
+  }
+  .btn-green a {
+    font-family: 'SegoeUI';
+    font-weight: bold;
+  }
+  .top_mobile_head-publish-icon {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 4px;
+    width: 37px;
+    height: 37px;
+    display: flex;
+    align-items: center;
+    font-size: 0;
+    background-image: linear-gradient(to top, #b4d7c4 0%, #d3ebde 99%, #d3ebde 100%);
+    background-color: #f0908a;
+    box-shadow: 0 2px 3px rgba(89, 139, 112, 0.7);
+    border-radius: 100%;
+    padding: 0 7px 0 9px;
+  }
+}
+@media screen and (max-width: 700px) {
+  .tape-content .tape-content-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .user-tape {
+    margin-bottom: 10px;
+  }
 }
 @media screen and (max-width: 600px) {
+  .pop-up-body-authorization {
+    width: 100%;
+    max-width: 570px;
+  }
+  .wrap-authorization .authorization-el {
+    margin-right: 10px;
+  }
   .container {
     padding: 0 10px;
   }
@@ -328,22 +446,22 @@
     padding-right: 10px;
   }
   .search input {
-    font-size: 11px;
+    font-size: 14px;
   }
   .search input::placeholder {
-    font-size: 11px;
+    font-size: 14px;
   }
   section.sec-tape h2 {
     font-size: 16px;
   }
   .tape-content .tape-content-body h4 {
-    font-size: 12px;
+    font-size: 14px;
   }
   .tape-content .tape-content-body p {
     font-size: 14px;
   }
   .user-tape span {
-    font-size: 12px;
+    font-size: 14px;
   }
   .tape-content .tape-content-foot .tape-activity .tape-activity-el span {
     font-size: 10px;
@@ -387,10 +505,6 @@
     line-height: 1.37;
     margin-top: 4px;
   }
-  .user-tape .user-tape-img {
-    min-width: 23px;
-    min-height: 22px;
-  }
   .tape-content .tape-content-foot {
     padding: 6px;
   }
@@ -407,11 +521,12 @@
   #wrap-content-content .wrap-left-menu .menu li a span {
     font-size: 9px;
   }
-  .tapes-else > button {
-    font-size: 12px;
+  .tapes-else a {
+    font-size: 16px;
     padding: 9px 15px 11px 15px;
+    font-weight: bold;
   }
-  .tapes-else button img {
+  .tapes-else a img {
     max-width: 20px;
   }
   .user span {
@@ -440,8 +555,7 @@
     padding: 14px 0;
   }
   .wrap-menu-window-mobile .menu-window-mobile-maian ul {
-    padding: 18px 0;
-    padding-bottom: 53px;
+    padding: 25px 0;
   }
   .wrap-topic-content .topic-content-el h4 {
     font-size: 14px;
@@ -450,7 +564,7 @@
     font-size: 12px;
   }
   .wrap-topic-content .topic-content-el div a {
-    font-size: 12px;
+    font-size: 14px;
   }
   .wrap-topic-content .topic-content-el ul {
     margin-left: 0;
@@ -462,7 +576,7 @@
     font-size: 14px;
   }
   .wrap-notification-content .notification-content-el {
-    padding: 20px 15px;
+    padding: 10px 15px;
   }
   .wrap-notification-content {
     border-radius: 15px;
@@ -479,18 +593,18 @@
     max-width: 106px;
   }
   .profile_user .profile_user_name p {
-    font-size: 14px;
+    font-size: 16px;
   }
   section.sec-profile .profile_tabs {
     margin-top: 31px;
   }
   .profile_tabs ul li h5 {
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 5px;
     padding-bottom: 5px;
   }
   .profile_tabs ul li span {
-    font-size: 12px;
+    font-size: 14px;
   }
   .profile_tabs ul li a {
     padding: 14px 7px;
@@ -532,8 +646,12 @@
     margin-top: 3px;
     font-size: 12px;
   }
-  .publication-content-form .publication-content-form-el .inputs .input-el p {
+  .publication-content-form .publication-content-form-el .inputs .input-el p,
+  .input-el__delete span {
     font-size: 12px;
+  }
+  .input-el__media {
+    padding-right: 20px;
   }
   .publication-content-form .add_option span {
     font-size: 12px;
@@ -555,12 +673,17 @@
     text-align: center;
   }
   .publication-content-form .publication-content-form-bottom .publication-content-form-btn button {
-    font-size: 12px;
+    font-size: 14px;
     padding: 0;
     max-width: 144px;
     text-align: center;
     width: 100%;
     height: 38px;
+  }
+  .btn-green button,
+  .btn-green a {
+    font-family: 'SegoeUI';
+    font-weight: bold;
   }
   .publication-content-form {
     padding: 25px 10px;
@@ -577,11 +700,18 @@
     font-size: 11px;
   }
   .publication-detail-content-main .detail-content-main-info-text h3 {
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 15px;
   }
+  .noCommnets__text {
+    font-size: 14px;
+  }
+  .detail-content-noCommnets {
+    margin-left: 20px;
+    margin-right: 0;
+  }
   .publication-detail-content-main .detail-content-main-info-text p {
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 20px;
     line-height: 1.4;
   }
@@ -606,7 +736,7 @@
     left: 14px;
   }
   .publication-detail-content-main .detail-content-main-activity .user_activity .user_activity_name span {
-    font-size: 12px;
+    font-size: 14px;
   }
   .publication-detail-content-main .detail-content-main-activity .content-main-activities .activity-el .activity-el_count span {
     font-size: 10px;
@@ -621,11 +751,7 @@
     font-size: 11px;
   }
   .publication-detail-content-comments .detail-content-comments ul.content-comments li.comment .wrap-comment .comment-reply .btn-green a {
-    font-size: 12px;
-    padding: 11px 21px 14px 21px;
-  }
-  .publication-detail-content-comments .detail-content-comments ul.content-comments li.comment .wrap-comment .comment-reply .btn-green button {
-    font-size: 12px;
+    font-size: 14px;
     padding: 11px 21px 14px 21px;
   }
   .comment-reply-input input.inp_comment {
@@ -648,12 +774,7 @@
     padding-left: 15px;
   }
   .detail-content-comments-add .btn-green a {
-    font-size: 12px;
-    padding: 11px 21px 14px 21px;
-    max-width: 111px;
-  }
-  .detail-content-comments-add .btn-green button {
-    font-size: 12px;
+    font-size: 14px;
     padding: 11px 21px 14px 21px;
     max-width: 111px;
   }
@@ -696,10 +817,16 @@
   }
   .message-list-content .message-list-content-content h5 {
     font-size: 14px;
+    max-height: 32px;
+    overflow: hidden;
   }
   .message-list-content .message-list-content-content p {
     font-size: 12px;
     line-height: 1.3;
+    max-height: 37px;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
   }
   .message-list-content .message-list-content-info {
     margin-right: 0;
@@ -726,7 +853,7 @@
     max-height: 23px;
   }
   .wrap-messages-content .messages-content-body .message-content-el .message-content-el-body .message-content-el-body-text p {
-    font-size: 12px;
+    font-size: 14px;
   }
   section.messages {
     margin-top: 0;
@@ -837,7 +964,8 @@
     font-size: 14px;
   }
   .wrap-quiz .wrap-quiz-content .quiz-content-el .quiz-content-el-info .quiz-content-el-info-left p.quiz-content-el-info-name {
-    font-size: 12px;
+    font-size: 14px;
+    letter-spacing: -0.5px;
   }
   .wrap-quiz .wrap-quiz-content .quiz-content-el .quiz-content-el-info .quiz-content-el-info-left p.quiz-content-el-info-count,
   .wrap-quiz .wrap-quiz-content .quiz-content-el .quiz-content-el-info .quiz-content-el-info-right p.quiz-content-el-info-procent {
@@ -894,23 +1022,82 @@
   .search ul.search-results {
     max-height: 300px;
   }
+  .publication-detail-content-comments .detail-content-comments ul.content-comments li.comment .wrap-comment .wrap-comment-body p {
+    font-size: 14px;
+  }
+  .pop-up-body-authorization .body-authorization-foot,
+  .pop-up-body-authorization .body-authorization-top,
+  .pop-up-body-authorization h4 {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .pop-up-body-authorization form button {
+    font-size: 16px;
+  }
+  .block-tags__title {
+    margin-bottom: 15px;
+  }
+  .tag-content a {
+    font-size: 14px;
+  }
+  .block-tags {
+    display: block;
+  }
+  .block-tags-content {
+    margin: 0 -5px;
+  }
+  #wrap-content-content .wrap-left-menu .menu li.live span {
+    font-size: 0;
+  }
+  #wrap-content-content .wrap-left-menu .menu li.live span::after {
+    content: 'Лента live';
+    font-size: 9px;
+  }
+  .profile-user-upload p {
+    line-height: 1.2;
+    font-size: 14px;
+  }
+  .btn-green_nobtn {
+    font-size: 16px;
+  }
+  .confirm-email {
+    height: 35px;
+    justify-content: flex-start;
+    padding-left: 20px;
+  }
+  .confirm-email p {
+    font-size: 14px;
+  }
+  .confirm-email .close {
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;
+  }
+  .tape-content .tape-content-foot .tape-activity-feed .tape-activity-el {
+    margin-right: 13px;
+  }
+  .publication-detail-content-main .detail-content-main-activity .user_activity {
+    margin-bottom: 10px;
+  }
+  .wrap-authorization .authorization-el .authorization-icon {
+    min-width: 34px;
+    min-height: 34px;
+    background-size: 15px;
+  }
+  .pop-up-body-authorization form .inputs input {
+    font-size: 14px;
+  }
 }
 @media screen and (max-width: 500px) {
   .tape-tabs ul li a {
     padding: 6px 8px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .tape-tabs ul li {
     margin-right: 2px;
   }
   .tape-tabs {
     margin-bottom: 18px;
-  }
-  .wrap-notification-content .notification-content-el .notification-content-el-info p {
-    font-size: 10px;
-  }
-  .wrap-notification-content .notification-content-el .notification-content-el-info p a {
-    font-size: 12px;
   }
   .message-list-content .message-list-content_icon {
     min-width: 40px;
@@ -919,10 +1106,10 @@
     max-height: 40px;
   }
   .message-list-content .message-list-content-content h5 {
-    font-size: 10px;
+    font-size: 14px;
   }
   .message-list-content .message-list-content-content p {
-    font-size: 10px;
+    font-size: 14px;
   }
   .message-list-content .message-list-content-info .message-list-content-info-time span {
     font-size: 10px;
@@ -944,10 +1131,11 @@
     margin-bottom: 4px;
   }
   .search ul.search-results li a {
-    font-size: 12px;
+    font-size: 14px;
   }
   .search ul.search-results li a .icon {
     margin-right: 8px;
+    margin-top: 2px;
     min-height: 12px;
     min-width: 12px;
     max-height: 12px;
@@ -964,5 +1152,8 @@
   }
   .wrap-topic-content .topic-content-el:nth-child(2n) {
     margin-right: 0;
+  }
+  .btn-green_nobtn {
+    width: 140px;
   }
 }

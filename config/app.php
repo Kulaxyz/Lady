@@ -164,6 +164,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Overtrue\LaravelFollow\FollowServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Artesaos\SEOTools\Providers\SEOToolsServiceProvider::class,
+
 
         /*
          * Package Service Providers...
@@ -230,6 +232,9 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'SEO' => Artesaos\SEOTools\Facades\SEOTools::class,
+
+
     ],
 
 ];

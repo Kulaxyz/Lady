@@ -55,7 +55,7 @@ class NewComment extends Notification implements ShouldBroadcast
             return [
                 'data' => "<strong><a href='" . route('profile', $this->user->id) .
                     "'>$name</a></strong> прокомментировала запись <a href='" .
-                    route('show', $this->post->id) ."'><strong>$title</strong></a>."
+                    route('show', $this->post->slug) ."'><strong>$title</strong></a>."
             ];
         }
         $name = 'Аноним';

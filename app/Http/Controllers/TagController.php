@@ -6,6 +6,10 @@ use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+use Artesaos\SEOTools\Facades\SEOTools as SEO;
+
 
 class TagController extends Controller
 {
@@ -21,7 +25,7 @@ class TagController extends Controller
         $ids = array_unique($ids);
         $tags = Tag::withCount('posts', 'followers')
             ->whereNotIn('id', $ids)
-            ->limit(6)
+            ->limit(16)
             ->orderBy($order, 'DESC')->get();
 
         if (!$request->ajax()) {
@@ -39,30 +43,50 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        if (!Gate::allows('add-tag')) {
+            abort(403);
+        }
+
         $tag = new Tag();
         $tag->name = $request->post('name');
-        $tag->save();
+        $tag->title = $request->post('title');
+        $tag->seoTitle = $request->post('seoTitle');
+        $tag->seoDesc = $request->post('seoDesc');
+        $tag->slug = Str::slug($tag->title);
 
-        return redirect()->to('/tags/' . $tag->id);
+        $tag->save();
+        session()->flash('notify', 'Тег успешно добавлен!');
+        return redirect()->back();
     }
 
     /**
      * Display the specified resource.
      *
-     * @param \App\Tag $tag
+     * @param string $slig
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function show(int $id, Request $request)
+    public function show(string $slug, Request $request)
     {
         $ids = $request->post('ids') ? $request->post('ids') : [];
-        $tag = Tag::find($id);
-        $posts = $tag->posts()->withCount('likers', 'comments', 'favoriters')
+        $tag = Tag::where('slug', $slug)->first();
+
+        SEO::setTitle($tag->seoTitle);
+        SEO::setDescription($tag->seoDesc);
+        SEO::opengraph()->setTitle($tag->seoTitle);
+        SEO::opengraph()->setDescription($tag->seoDesc);
+
+        $posts = $tag->posts()->withCount('likers', 'comments', 'favoriters', 'bookmarkers')
             ->whereNotIn('post_id', $ids)
             ->with('images', 'user')
             ->orderBy('created_at', 'DESC')
             ->limit(6)->get();
+        $posts = PostController::addActivities($posts);
         if (!$request->ajax()) {
-            return view('tag.single', ['posts' => $posts, 'tag' => $tag]);
+            $last_modified = $posts->first() ? $posts->first()->updated_at : null;
+            return response()
+                ->view('tag.single', ['posts' => $posts, 'tag' => $tag])
+                ->header('Last-Modified', $last_modified);
         } else {
             return $posts;
         }
@@ -76,7 +100,12 @@ class TagController extends Controller
      */
     public function edit(Tag $tag)
     {
-        //
+        if (!Gate::allows('add-tag')) {
+            abort(403);
+        }
+
+        $tags = Tag::all();
+        return view('tag.edit', compact('tags'));
     }
 
     /**
@@ -88,7 +117,18 @@ class TagController extends Controller
      */
     public function update(Request $request, Tag $tag)
     {
-        //
+        if (!Gate::allows('add-tag')) {
+        abort(403);
+        }
+            $tag->name = $request->post('name');
+        $tag->title = $request->post('title');
+        $tag->seoTitle = $request->post('seoTitle');
+        $tag->seoDesc = $request->post('seoDesc');
+        $tag->slug = Str::slug($tag->title);
+
+        $tag->save();
+        session()->flash('notify', 'Тег успешно обновлён!');
+        return redirect()->back();
     }
 
     /**
@@ -99,7 +139,13 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        //
+        if (!Gate::allows('add-tag')) {
+            abort(403);
+        }
+
+        $tag->delete();
+        session()->flash('notify', 'Тег успешно удалён!');
+        return redirect()->back();
     }
 
     public function follow(Request $request)

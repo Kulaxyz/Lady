@@ -20,8 +20,8 @@ class CreateOptionsTable extends Migration
         $table->integer('votes')->default(0);
         $table->timestamps();
 
-        $table->foreign('post_id')->references('id')->on('posts');
-    });
+        $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+        });
 
     }
 

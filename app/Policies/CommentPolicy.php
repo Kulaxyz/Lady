@@ -28,7 +28,8 @@ class CommentPolicy
      */
     public function delete($user, Comment $comment) : bool
     {
-        return $user->id == $comment->commenter_id || $user->role == 'admin' || $user->role == 'moderator';
+//        $user->id == $comment->commenter_id ||
+        return $user->role == 'admin' || $user->role == 'moderator';
     }
 
     /**

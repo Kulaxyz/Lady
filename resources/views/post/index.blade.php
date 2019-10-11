@@ -1,26 +1,22 @@
 @extends('layouts/app')
 @section('content')
     @if($filter == 'live')
-        <h2>Лента live</h2>
-
     @elseif($filter == 'popular')
-        <h2>Лучшее</h2>
         <div class="tape-tabs">
             <ul>
-                <li class="{{ $time == 'day' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'day']) }}">24 часа</a></li>
-                <li class="{{ $time == 'week' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'week']) }}">7 дней</a></li>
-                <li class="{{ $time == 'month' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'month']) }}">30 дней</a></li>
-                <li class="{{ $time == 'century' ? 'active' : '' }}"><a href='{{ route('list', [$filter, 'century']) }}'>Все время</a></li>
+                <li class="{{ $time == 'day' ? 'active' : '' }}"><a href="{{ route('popular', [ 'day']) }}">24 часа</a></li>
+                <li class="{{ $time == 'week' ? 'active' : '' }}"><a href="{{ route('popular', [ 'week']) }}">7 дней</a></li>
+                <li class="{{ $time == 'month' ? 'active' : '' }}"><a href="{{ route('popular', ['month']) }}">30 дней</a></li>
+                <li class="{{ $time == 'century' ? 'active' : '' }}"><a href='{{ route('popular', ['century']) }}'>Все время</a></li>
             </ul>
         </div>
     @elseif($filter == 'discussed')
-        <h2>Обсуждаемое</h2>
         <div class="tape-tabs">
             <ul>
-                <li class="{{ $time == 'day' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'day']) }}">24 часа</a></li>
-                <li class="{{ $time == 'week' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'week']) }}">7 дней</a></li>
-                <li class="{{ $time == 'month' ? 'active' : '' }}"><a href="{{ route('list', [$filter, 'month']) }}">30 дней</a></li>
-                <li class="{{ $time == 'century' ? 'active' : '' }}"><a href='{{ route('list', [$filter, 'century']) }}'>Все время</a></li>
+                <li class="{{ $time == 'day' ? 'active' : '' }}"><a href="{{ route('discussed', [ 'day']) }}">24 часа</a></li>
+                <li class="{{ $time == 'week' ? 'active' : '' }}"><a href="{{ route('discussed', [ 'week']) }}">7 дней</a></li>
+                <li class="{{ $time == 'month' ? 'active' : '' }}"><a href="{{ route('discussed', ['month']) }}">30 дней</a></li>
+                <li class="{{ $time == 'century' ? 'active' : '' }}"><a href='{{ route('discussed', ['century']) }}'>Все время</a></li>
             </ul>
         </div>
 
@@ -117,6 +113,6 @@
 {{--        </div>--}}
 {{--    </div>--}}
 {{--    <div class="btn-green tapes-else">--}}
-{{--        <a href="#">Смотреть еще <img src="/img/tape/else_icon.png" alt=""></a>--}}
+{{--        <a href="#">Смотреть еще <img src="/img/tape/else_icon.svg" alt=""></a>--}}
 {{--    </div>--}}
 {{--</section>--}}

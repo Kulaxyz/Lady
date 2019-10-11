@@ -17,7 +17,7 @@
                 </div>
 
                 <div onclick="loadTags()" class="btn-green tapes-else">
-                    <a >Смотреть еще <img src="/img/tape/else_icon.png" alt=""></a>
+                    <a >Смотреть еще <img src="/img/tape/else_icon.svg" alt=""></a>
                 </div>
             </div>
         </div>
