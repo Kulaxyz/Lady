@@ -29,7 +29,7 @@
         "bootstrap-select": "^1.13.10",
         "emoji-mart-vue": "^2.6.6",
         "laravel-echo": "^1.5.4",
-        "moment": "^2.24.0",
+        "moment": "^2.29.2",
         "moment-timezone": "^0.5.26",
         "pusher-js": "^5.0.0",
         "vue-router": "^3.1.2",
